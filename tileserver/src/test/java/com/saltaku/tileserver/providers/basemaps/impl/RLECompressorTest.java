@@ -1,0 +1,133 @@
+/**
+ * 
+ */
+package com.saltaku.tileserver.providers.basemaps.impl;
+
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
+
+import org.geotools.feature.FeatureCollection;
+import org.geotools.referencing.factory.ReferencingObjectFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.opengis.geometry.Envelope;
+
+import com.saltaku.tileserver.providers.feature.FeatureProviderException;
+import com.saltaku.tileserver.providers.feature.TileUtils;
+import com.saltaku.tileserver.providers.feature.impl.ShapeFileFeatureProvider;
+
+
+/**
+ * @author dimi
+ *
+ */
+public class RLECompressorTest {
+
+	private DefaultBasemapRenderer renderer;
+	String wgs="GEOGCS[\"WGS84\", DATUM[\"WGS84\", SPHEROID[\"WGS84\", 6378137.0, 298.257223563]], PRIMEM[\"Greenwich\", 0.0], UNIT[\"degree\",0.017453292519943295], AXIS[\"Longitude\",EAST], AXIS[\"Latitude\",NORTH]]";
+	private final Logger log=Logger.getLogger("DefaultBasemapRendererTest");
+	protected TileUtils tileUtils;
+	protected ShapeFileFeatureProvider p;
+	private RLECompressor compressor=new RLECompressor();
+	
+	
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@Before
+	public void setUp() throws Exception {
+		this.renderer=new DefaultBasemapRenderer("aid", log);
+		this.tileUtils=new TileUtils(new ReferencingObjectFactory().createFromWKT(wgs));
+		this.p=new ShapeFileFeatureProvider("resources/test/shapefiles");
+	}
+	
+	@Test
+	public void simpleCompDecompTest()
+	{
+		int[] zero5={0,0,0,0,0};
+		this.showOutput(zero5);
+		int[] zero1zero={0,0,1,0,0};
+		this.showOutput(zero1zero);
+		int[] largeint={-16750537,2,-16750537,-16750537,-167505370,-167505370};
+		this.showOutput(largeint);
+	}
+	
+	@Test
+	public void testCompression() throws FeatureProviderException, IOException
+	{
+		this.compDecompImage(4105,2685,13); // 4 shapes
+		this.compDecompImage(4105,2684,13); // 1 shape
+		this.compDecompImage(126,83,8); // shitloads of shapes
+		this.compDecompImage(31,20,6); // shitloads of shapes. I mean, the largest number of shapes ever
+		//http://www.saltaku.com/cache/tile.php?id=zkkq5jb0&x=258&y=168&z=9
+		this.compDecompImage(258,168,9); // 87 geom
+		//http://www.saltaku.com/cache/tile.php?id=zkkq5jb0&x=1031&y=672&z=11
+		this.compDecompImage(1031,672,11); // 13 geom
+		//http://www.saltaku.com/cache/tile.php?id=zkkq5jb0&x=2065&y=1348&z=12
+		this.compDecompImage(2065,1348,12); // 3 geom
+		//http://www.saltaku.com/cache/tile.php?id=zkkq5jb0&x=32749&y=21771&z=16
+		this.compDecompImage(32749,21771,16); // 6 geom
+		//http://www.saltaku.com/cache/tile.php?id=zkkq5jb0&x=65495&y=43542&z=17
+		this.compDecompImage(65495,43542,17); // 2 geom
+		//http://www.saltaku.com/cache/tile.php?id=zkkq5jb0&x=130986&y=87086&z=18
+		this.compDecompImage(130986,87086,18); // 2 geom
+		this.compDecompImage(2095776,1393391,22); //1 geom
+	}
+	
+		
+	protected void compDecompImage(int x,int y, int z) throws FeatureProviderException, IOException
+	{
+		int[] bytes=this.draw(x, y, z);
+		this.compdecomp(bytes);
+	}
+	
+	
+	protected int[] draw(int x, int y, int z) throws FeatureProviderException
+	{
+		long t1=System.currentTimeMillis();
+		Envelope bbox=tileUtils.getTileEnvelope(x,y,z);
+		FeatureCollection c=p.get("lsoa", bbox);
+		int[] buff=this.renderer.drawBasemap( c, bbox);
+		
+		long t2=System.currentTimeMillis();
+		int s=c.size();
+		log.info("Drawing "+c.size()+" geometries for " +x+","+y+","+z+" took "+(t2-t1)+"ms "+((float)(t2-t1)/s)+"ms/geom");
+		return buff;
+	}
+	
+	protected void compdecomp(int[] data)
+	{
+		
+		long t1=System.currentTimeMillis();
+		int[] compressed=compressor.compress(data);
+		long t2=System.currentTimeMillis();
+		int[] decompressed=compressor.decompress(compressed);
+		long t3=System.currentTimeMillis();
+		System.out.println("Compressing took "+(t2-t1)+"ms, down "+compressed.length+" ints, decompression took "+(t3-t2)+"ms, ratio "+(compressed.length*10000/data.length)/100.0+"%");
+		//this.showOutput(data);
+		Assert.assertArrayEquals(data, decompressed);
+	}
+	
+	protected void showOutput(int[] in)
+	{
+		int[] c=compressor.compress(in);
+		int[] out=compressor.decompress(c);
+		for(int i=0;i<in.length;i++)
+		{
+			System.out.println(i+": "+in[i]+"="+out[i]);
+	}
+
+		
+	}
+	
+	
+
+}
