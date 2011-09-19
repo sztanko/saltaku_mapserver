@@ -33,10 +33,10 @@ public class DefaultBasemapRenderer implements BasemapRenderer {
 		this.log=log;
 	}
 	
-	public int[] drawBasemap(FeatureCollection features, Envelope bbox) {
+	public int[] drawBasemap(int width, int height,FeatureCollection features, Envelope bbox) {
 
 		AffineTransform at=this.getAffineTransform(bbox);  
-		BufferedImage bi=new BufferedImage(256, 256, 
+		BufferedImage bi=new BufferedImage(width, height, 
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g=(Graphics2D)bi.getGraphics();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);

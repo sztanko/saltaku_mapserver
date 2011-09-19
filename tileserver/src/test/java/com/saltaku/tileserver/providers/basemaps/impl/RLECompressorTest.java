@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.geometry.Envelope;
 
+import com.saltaku.tileserver.providers.basemaps.BasemapCompressor;
 import com.saltaku.tileserver.providers.feature.FeatureProviderException;
 import com.saltaku.tileserver.providers.feature.TileUtils;
 import com.saltaku.tileserver.providers.feature.impl.ShapeFileFeatureProvider;
@@ -36,7 +37,10 @@ public class RLECompressorTest {
 	private final Logger log=Logger.getLogger("DefaultBasemapRendererTest");
 	protected TileUtils tileUtils;
 	protected ShapeFileFeatureProvider p;
-	private RLECompressor compressor=new RLECompressor();
+	private  BasemapCompressor compressorRLE=new RLECompressor();
+	private  BasemapCompressor compressorDeflate=new ZipCompressor();
+	private  BasemapCompressor compressorNo=new NoCompressor();
+	
 	
 	
 	/**
@@ -53,11 +57,11 @@ public class RLECompressorTest {
 	public void simpleCompDecompTest()
 	{
 		int[] zero5={0,0,0,0,0};
-		this.showOutput(zero5);
+		this.showOutput(compressorRLE, zero5);
 		int[] zero1zero={0,0,1,0,0};
-		this.showOutput(zero1zero);
+		this.showOutput(compressorRLE, zero1zero);
 		int[] largeint={-16750537,2,-16750537,-16750537,-167505370,-167505370};
-		this.showOutput(largeint);
+		this.showOutput(compressorRLE, largeint);
 	}
 	
 	@Test
@@ -82,11 +86,52 @@ public class RLECompressorTest {
 		this.compDecompImage(2095776,1393391,22); //1 geom
 	}
 	
+	
+	@Test
+	public void testDeCompressionSpeed() throws FeatureProviderException, IOException
+	{
+	
+		this.repeatDecomp(126,83,8,compressorDeflate,compressorRLE,500); // 
+		this.repeatDecomp(258,168,9,compressorDeflate,compressorRLE,500); //
+		this.repeatDecomp(130986,87086,18,compressorDeflate,compressorRLE,500); // 
+	}
+	
+	@Test
+	public void testCompressionSpeed() throws FeatureProviderException, IOException
+	{
+	
+		this.repeatComp(126,83,8,compressorDeflate,compressorRLE,50); // 
+		this.repeatComp(258,168,9,compressorDeflate,compressorRLE,50); //
+		this.repeatComp(130986,87086,18,compressorDeflate,compressorRLE,50); // 
+	}
+	
+	@Test
+	public void testCompressionOutput() throws FeatureProviderException, IOException
+	{
+	
+		byte[] out=this.compressorDeflate.compress(this.draw(258,168,9));
+		System.out.print("{");
+		
+		for(int i =0;i<out.length;i++)
+		{
+			System.out.print(out[i]+",");
+		}
+		System.out.print("}");
+		//String s=new String(out);
+		//System.out.println(s);
+		
+		//this.repeatComp(126,83,8,compressorDeflate,compressorRLE,50); // 
+		//this.repeatComp(258,168,9,compressorDeflate,compressorRLE,50); //
+		//this.repeatComp(130986,87086,18,compressorDeflate,compressorRLE,50); // 
+	}
+	
 		
 	protected void compDecompImage(int x,int y, int z) throws FeatureProviderException, IOException
 	{
 		int[] bytes=this.draw(x, y, z);
-		this.compdecomp(bytes);
+		this.compdecomp(compressorNo, bytes);
+		this.compdecomp(compressorRLE, bytes);
+		this.compdecomp(compressorDeflate, bytes);
 	}
 	
 	
@@ -95,7 +140,7 @@ public class RLECompressorTest {
 		long t1=System.currentTimeMillis();
 		Envelope bbox=tileUtils.getTileEnvelope(x,y,z);
 		FeatureCollection c=p.get("lsoa", bbox);
-		int[] buff=this.renderer.drawBasemap( c, bbox);
+		int[] buff=this.renderer.drawBasemap(256,256, c, bbox);
 		
 		long t2=System.currentTimeMillis();
 		int s=c.size();
@@ -103,31 +148,71 @@ public class RLECompressorTest {
 		return buff;
 	}
 	
-	protected void compdecomp(int[] data)
+	protected void compdecomp( BasemapCompressor compressor, int[] data)
 	{
 		
-		long t1=System.currentTimeMillis();
-		int[] compressed=compressor.compress(data);
-		long t2=System.currentTimeMillis();
+		//long t1=System.currentTimeMillis();
+		long t1=System.nanoTime();
+		byte[] compressed=compressor.compress(data);
+		long t2=System.nanoTime();
 		int[] decompressed=compressor.decompress(compressed);
-		long t3=System.currentTimeMillis();
-		System.out.println("Compressing took "+(t2-t1)+"ms, down "+compressed.length+" ints, decompression took "+(t3-t2)+"ms, ratio "+(compressed.length*10000/data.length)/100.0+"%");
+		long t3=System.nanoTime();
+		System.out.println(compressor.getClass().getSimpleName() +":\t  "+(t2-t1)/1000+"mks/"+(t3-t2)/1000+"mks,\tlength:"+ compressed.length+",\tratio "+(compressed.length*10000/(2*data.length))/100.0+"%");
 		//this.showOutput(data);
 		Assert.assertArrayEquals(data, decompressed);
 	}
 	
-	protected void showOutput(int[] in)
+	protected void showOutput( BasemapCompressor compressor,int[] in)
 	{
-		int[] c=compressor.compress(in);
+		byte[] c=compressor.compress(in);
 		int[] out=compressor.decompress(c);
 		for(int i=0;i<in.length;i++)
 		{
 			System.out.println(i+": "+in[i]+"="+out[i]);
+		}
 	}
 
+	protected void repeatDecomp(int x,int y, int z, BasemapCompressor compressor1,BasemapCompressor compressor2, int numTimes) throws FeatureProviderException
+	{
+		int[] in =this.draw(x, y, z);
+		byte[] c1=compressor1.compress(in);
+		byte[] c2=compressor2.compress(in);
 		
+		long t1=System.currentTimeMillis();
+		for(int i=0;i<numTimes;i++){
+			compressor1.decompress(c1);
+		}
+		long t2=System.currentTimeMillis();
+		
+		long t3=System.currentTimeMillis();
+		for(int i=0;i<numTimes;i++){
+			compressor2.decompress(c2);
+		}
+		long t4=System.currentTimeMillis();
+		
+		System.out.println(compressor1.getClass().getSimpleName() +":\t  "+(t2-t1)+"ms");
+		System.out.println(compressor2.getClass().getSimpleName() +":\t  "+(t4-t3)+"ms");
 	}
 	
 	
+	protected void repeatComp(int x,int y, int z, BasemapCompressor compressor1,BasemapCompressor compressor2, int numTimes) throws FeatureProviderException
+	{
+		int[] in =this.draw(x, y, z);
+		
+		long t1=System.currentTimeMillis();
+		for(int i=0;i<numTimes;i++){
+			compressor1.compress(in);
+		}
+		long t2=System.currentTimeMillis();
+		
+		long t3=System.currentTimeMillis();
+		for(int i=0;i<numTimes;i++){
+			compressor2.compress(in);
+		}
+		long t4=System.currentTimeMillis();
+		
+		System.out.println(compressor1.getClass().getSimpleName() +":\t  "+(t2-t1)+"ms");
+		System.out.println(compressor2.getClass().getSimpleName() +":\t  "+(t4-t3)+"ms");
+	}
 
 }

@@ -11,11 +11,13 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import com.saltaku.tileserver.providers.basemaps.BasemapProvider;
+import com.saltaku.tileserver.providers.basemaps.BasemapProviderException;
 import com.saltaku.tileserver.providers.feature.FeatureProviderException;
 import com.saltaku.tileserver.providers.mappings.MappingProvider;
 import com.saltaku.tileserver.providers.mappings.MappingProviderException;
 import com.saltaku.tileserver.providers.translator.TranslatorProvider;
 import com.saltaku.tileserver.render.BitmapRenderer;
+import com.saltaku.tileserver.render.BitmapRendererException;
 
 public class TileHandler extends AbstractHandler {
 	private BasemapProvider basemapProvider;
@@ -33,7 +35,7 @@ public class TileHandler extends AbstractHandler {
 				
 		int[] baseMap;
 		try {
-			baseMap = basemapProvider.getBitmap(shapeId, x, y, z);
+			baseMap = basemapProvider.getBasemapForTile(shapeId, x, y, z);
 
 		int[] mapping = mappingProvider.getMapping(shapeId,null);
 		int[] bitmap = translatorProvider.translateBaseMap(baseMap, mapping);
@@ -41,11 +43,13 @@ public class TileHandler extends AbstractHandler {
 		response.setContentType("img/png;");
         response.setStatus(HttpServletResponse.SC_OK);
         baseRequest.setHandled(true);
-		bitmapRenderer.writeBitmap(bitmap, response.getOutputStream());
-		} catch (FeatureProviderException e) {
-			throw new ServletException(e);
+		bitmapRenderer.writeBitmap(256,256,bitmap, response.getOutputStream());
 		} catch (MappingProviderException e) {
 			throw new ServletException(e);
+		} catch (BasemapProviderException e) {
+			e.printStackTrace();
+		} catch (BitmapRendererException e) {
+			e.printStackTrace();
 		}
 		
 	}

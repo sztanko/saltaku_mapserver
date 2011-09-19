@@ -107,7 +107,7 @@ public class DefaultBasemapRendererTest {
 		long t1=System.currentTimeMillis();
 		Envelope bbox=tileUtils.getTileEnvelope(x,y,z);
 		FeatureCollection c=p.get("lsoa", bbox);
-		int[] buff=this.renderer.drawBasemap( c, bbox);
+		int[] buff=this.renderer.drawBasemap(256,256, c, bbox);
 		
 		long t2=System.currentTimeMillis();
 		int s=c.size();

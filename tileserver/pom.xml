@@ -83,6 +83,12 @@
       <version>${jettyVersion}</version>
     </dependency>
     
+      <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+      <version>3.4.0</version>
+    </dependency>
+    
   </dependencies>
   
   <repositories>

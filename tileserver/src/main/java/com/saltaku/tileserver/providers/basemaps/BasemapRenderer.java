@@ -5,6 +5,6 @@ import org.opengis.geometry.Envelope;
 
 public interface BasemapRenderer {
 
-	public int[] drawBasemap(FeatureCollection features, Envelope bbox);
+	public int[] drawBasemap(int width, int height, FeatureCollection features, Envelope bbox);
 	
 }
