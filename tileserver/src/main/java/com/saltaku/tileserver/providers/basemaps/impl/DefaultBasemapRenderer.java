@@ -20,6 +20,7 @@ import org.opengis.metadata.spatial.Dimension;
 
 import com.google.inject.Inject;
 import com.saltaku.tileserver.providers.basemaps.BasemapRenderer;
+import com.saltaku.tileserver.providers.basemaps.CompressionUtil;
 import com.vividsolutions.jts.geom.Geometry;
 
 public class DefaultBasemapRenderer implements BasemapRenderer {
@@ -40,13 +41,14 @@ public class DefaultBasemapRenderer implements BasemapRenderer {
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g=(Graphics2D)bi.getGraphics();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+		
 		 FeatureIterator fIterator=features.features();
 		 while (fIterator.hasNext()) {
         	 Feature f=fIterator.next();
         	 Geometry geometry=(Geometry) f.getDefaultGeometryProperty().getValue();
         	 Integer id=(Integer)f.getProperty(idFieldName).getValue();
         	 //log.info("area id "+id+" "+Integer.toBinaryString(id));
-        	 Color c=new Color(id);
+        	 Color c=CompressionUtil.int2color(id);
         	 g.setColor(c);
         	 Shape s=new LiteShape(geometry, at,false );
         	 g.fill(s);

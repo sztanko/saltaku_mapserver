@@ -75,10 +75,15 @@ String wgs="GEOGCS[\"WGS84\", DATUM[\"WGS84\", SPHEROID[\"WGS84\", 6378137.0, 29
 	public void tryConcurrent() throws InterruptedException
 	{
 		//this.concurrentTest(100, 30);
-		this.concurrentTest(1, 10);
+		this.concurrentTest(1, 4);
 		//this.concurrentTest(3, 10);
 		System.gc();
-		this.concurrentTest(10000, 20);
+		this.concurrentTest(200, 30); //83006.0ms, 13.83ms per tile
+		this.concurrentTest(300, 20); //77889.0ms, 12.9815ms per tile
+		this.concurrentTest(600, 10); //77169.0ms, 12.8615ms per tile
+		this.concurrentTest(1200, 5); //72788.0ms, 12.131333333333334ms per tile
+		this.concurrentTest(3000, 2); //70168.0ms, 11.694666666666667ms per tile
+		this.concurrentTest(6000, 1); //120945.0ms, 20.1575ms per tile
 	}
 	
 	
@@ -86,7 +91,7 @@ String wgs="GEOGCS[\"WGS84\", DATUM[\"WGS84\", SPHEROID[\"WGS84\", 6378137.0, 29
 	{
 		System.out.println("Generating tile names");
 		List<Tile> tileList=new ArrayList<Tile>();
-		this.retrieveRecursive(tileList, 31,20,6, 14);
+		this.retrieveRecursive(tileList, 31,20,6, 12);
 		Thread c[]=new Thread[numThreads];
 		long t1=System.nanoTime();
 		for(int i=0;i<c.length;i++)

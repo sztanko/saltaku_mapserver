@@ -1,5 +1,7 @@
 package com.saltaku.tileserver.providers.basemaps;
 
+import java.awt.Color;
+
 public class CompressionUtil {
 
 	 public static byte[] int2byte(int[]src) {
@@ -53,6 +55,37 @@ public class CompressionUtil {
 		  out[3]= (byte) ((x >>> 24) & 0xff);
 		  return out;
 	  }
-	  
+
+	  public static Color int2color(int x)
+	  {
+//		  int[] out=new int[4];
+		  Color out=new Color(((x >>> 16) & 0xff),((x >>> 8) & 0xff),((x >>> 0) & 0xff),(~(x >>> 24) & 0xff));
+		/*  out[3] =  ((x >>> 0) & 0xff); //b           
+		  out[2] =  ((x >>> 8) & 0xff);  //g
+		  out[1] =  ((x >>> 16) & 0xff);  //r
+		  out[0]=  ((x >>> 24) & 0xff);   //alpha */
+		  return out;
+	  }
+	  public static int color2int(Color x)
+	  {
+		  int out=0;
+		  out+=(x.getBlue()  & 0xff) << 0;
+		  out+=(x.getGreen()  & 0xff) << 8;
+		  out+=(x.getRed()  & 0xff) << 16;
+		  out+= ~(x.getAlpha() & 0xff) <<24;
+		  return out;
+	  }
 	
+	  /*
+	   * x y r
+	   * 1 0 1
+	   * 1 1 0
+	   * 0 0 0
+	   * 0 1 1
+	   */
+	  
+	  public static int color2int(int x)
+	  {
+		  return (x ^ 0xFF000000);
+	  }
 }
