@@ -42,6 +42,7 @@ public class DefaultBasemapProvider implements BasemapProvider {
 
 	public int[] getBasemapForTile(String shapeId, int x, int y, int z) throws BasemapProviderException {
 		String key = "t" + x + ";" + y + ";" + z;
+		//String key = new StringBuilder(12).append("t").append(x).append(";").append(y).append(";").append(z);
 		
 
 		int[] out = null;
