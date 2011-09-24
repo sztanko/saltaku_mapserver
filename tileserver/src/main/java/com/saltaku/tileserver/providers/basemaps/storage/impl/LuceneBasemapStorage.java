@@ -27,6 +27,8 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.saltaku.tileserver.providers.basemaps.storage.BasemapStorage;
 import com.saltaku.tileserver.providers.basemaps.storage.BasemapStorageException;
 
@@ -50,7 +52,8 @@ public class LuceneBasemapStorage implements BasemapStorage {
 	private int hits=0;
 	private int commits=0;
 	
-	public LuceneBasemapStorage(String path) throws BasemapStorageException {
+	@Inject
+	public LuceneBasemapStorage(@Named("lucenePath") String path) throws BasemapStorageException {
 		try {
 			this.index=FSDirectory.open(new File(path));
 			this.analyzer= new SimpleAnalyzer(Version.LUCENE_34);

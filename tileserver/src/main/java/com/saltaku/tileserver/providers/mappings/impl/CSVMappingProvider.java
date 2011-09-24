@@ -7,14 +7,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.saltaku.tileserver.providers.mappings.MappingProvider;
 import com.saltaku.tileserver.providers.mappings.MappingProviderException;
 
@@ -27,10 +28,14 @@ public class CSVMappingProvider implements MappingProvider {
 	private Logger log;
 	int[] colorMapping;
 	
-	private Map<String, int[]> buffer = new HashMap<String, int[]>();
+	private Map<String, int[]> buffer = new ConcurrentHashMap<String, int[]>();
 
 	@Inject
-	public CSVMappingProvider(String path, char delimiter,int valueField,long maxItems, int[] colorMapping, Logger log){
+	public CSVMappingProvider(
+				@Named("csvPath") String path, 
+				@Named("csvDelimiter") char delimiter, 
+				@Named("csvValueField") int valueField, 
+				@Named("csvCacheSize") long maxItems, @Named("colorMapping") int[] colorMapping, Logger log){
 		this.path=path;
 		this.delimiter=delimiter;
 		this.valueField=valueField;
@@ -59,8 +64,8 @@ public class CSVMappingProvider implements MappingProvider {
 				
 				if(numItems>maxItems)
 				{
-					// not Thread Safe potentially, but happens very, very rarely. Rewrite if we become famous.
-					this.buffer=new HashMap<String, int[]>(); 
+					//TODO not Thread Safe potentially, but happens very, very rarely. Rewrite if we become famous.
+					this.buffer=new ConcurrentHashMap<String, int[]>(); 
 					numItems=0;
 				}
 				out=this.loadMapping(mapId);
@@ -74,23 +79,27 @@ public class CSVMappingProvider implements MappingProvider {
 
 	protected int[] loadMapping(String mapId) throws MappingProviderException {
 		this.log.info("Could not find data for "+ mapId+", loading it");
+		long t1=System.currentTimeMillis();
 		int[] out = null;
 		List<Integer> list = new ArrayList<Integer>();
 		CSVReader reader = null;
 		try {
 			File f = new File(path + "/" + mapId + "/data.csv.gz");
 			if(f.exists()){
+			//	System.out.println("Delimiter is "+delimiter);
 			reader = new CSVReader(new InputStreamReader(
-					new GZIPInputStream(new FileInputStream(f), delimiter)));
+					new GZIPInputStream(new FileInputStream(f))), delimiter);
 			}
 			else{
 			f = new File(path + "/" + mapId + "/data.csv");
+			//System.out.println("Delimiter is "+delimiter);
 			reader = new CSVReader(new FileReader(f), delimiter);
 			}
 			
 			String[] l = null;
 			while ((l = reader.readNext()) != null) {
-				list.add(new Integer(l[valueField]));
+				
+				list.add(new Integer(l[valueField].trim()));
 			}
 		} catch (IOException e) {
 			throw new MappingProviderException(e);
@@ -107,9 +116,17 @@ public class CSVMappingProvider implements MappingProvider {
 		out = new int[list.size()];
 		int i = 0;
 		for (Integer num : list) {
-			out[i++] = num;
+			if(num>=0){
+			out[i++] = this.colorMapping[num];
+			}
+			else
+			{
+				out[i++]=0;
+			}
 			
 		}
+		long t2=System.currentTimeMillis();
+		System.out.println("File loaded in "+(t2-t1)+"ms");
 		return out;
 	}
 

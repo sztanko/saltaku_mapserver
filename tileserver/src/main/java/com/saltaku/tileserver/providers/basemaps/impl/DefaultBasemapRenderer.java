@@ -19,6 +19,7 @@ import org.opengis.geometry.Envelope;
 import org.opengis.metadata.spatial.Dimension;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.saltaku.tileserver.providers.basemaps.BasemapRenderer;
 import com.saltaku.tileserver.providers.basemaps.CompressionUtil;
 import com.vividsolutions.jts.geom.Geometry;
@@ -28,7 +29,7 @@ public class DefaultBasemapRenderer implements BasemapRenderer {
 	private String idFieldName;
 	
 	@Inject
-	public DefaultBasemapRenderer(String idFieldName, Logger log)
+	public DefaultBasemapRenderer(@Named("idFieldName") String idFieldName, Logger log)
 	{
 		this.idFieldName=idFieldName;
 		this.log=log;

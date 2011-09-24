@@ -6,6 +6,7 @@ import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 
 
@@ -19,7 +20,7 @@ public class TileUtils {
 private CoordinateReferenceSystem crs;
 
 @Inject
-public TileUtils(CoordinateReferenceSystem crs)
+public TileUtils(@Named("coordinateReferenceSystem") CoordinateReferenceSystem crs)
 {
 	this.crs=crs;
 }

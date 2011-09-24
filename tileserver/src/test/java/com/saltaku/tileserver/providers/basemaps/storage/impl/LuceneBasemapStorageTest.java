@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.factory.ReferencingObjectFactory;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.geometry.Envelope;
@@ -47,17 +48,56 @@ String wgs="GEOGCS[\"WGS84\", DATUM[\"WGS84\", SPHEROID[\"WGS84\", 6378137.0, 29
 	//	this.byteMap= new HashMap<String,byte[]>();
 	}
 	
-	@Test
+	//@Test
 	public void testSinglePut() throws BasemapStorageException
 	{
 		System.out.println("Putting "+this.testBytes.length+" bytes");
 		long t1=System.nanoTime();
 		st.put("test", "258-168-9", this.testBytes);
 		long t2=System.nanoTime();
+		byte[] out= st.get("test", "258-168-9");
+		Assert.assertArrayEquals(this.testBytes,out);
+		System.out.println("Completed in "+(t2-t1)/1000+"mks");
+	}
+	@Test
+	public void testPutBytes() throws BasemapStorageException
+	{
+		byte[] b={1,2,3,4,5};
+		System.out.println("Putting "+b.length+" bytes");
+		long t1=System.nanoTime();
+		st.put("test", "test", b);
+		long t2=System.nanoTime();
+		byte[] out= st.get("test", "test");
+		Assert.assertArrayEquals(b,out);
 		System.out.println("Completed in "+(t2-t1)/1000+"mks");
 	}
 	
 	@Test
+	public void testGetBytes() throws BasemapStorageException
+	{
+		byte[] b={1,2,3,4,5};
+		System.out.println("Putting "+b.length+" bytes");
+		long t1=System.nanoTime();
+	//	st.put("test", "test", b);
+		long t2=System.nanoTime();
+		byte[] out= st.get("test", "test");
+		Assert.assertArrayEquals(b,out);
+		System.out.println("Completed in "+(t2-t1)/1000+"mks");
+	}
+	
+	/*@Test
+	public void testSingleGet() throws BasemapStorageException
+	{
+		System.out.println("Putting "+this.testBytes.length+" bytes");
+		long t1=System.nanoTime();
+		//st.put("test", "258-168-9", this.testBytes);
+		long t2=System.nanoTime();
+		byte[] out= st.get("test", "258-168-9");
+		Assert.assertArrayEquals(this.testBytes,out);
+		System.out.println("Completed in "+(t2-t1)/1000+"mks");
+	}*/
+	
+	//@Test
 	public void testPutManyTiles() throws BasemapStorageException, FeatureProviderException
 	{
 		Map<String,byte[]> byteMap= new HashMap<String,byte[]>();

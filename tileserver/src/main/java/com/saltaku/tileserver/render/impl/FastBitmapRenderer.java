@@ -13,10 +13,10 @@ import com.google.inject.Inject;
 import com.saltaku.tileserver.render.BitmapRenderer;
 import com.saltaku.tileserver.render.BitmapRendererException;
 
-public class DefaultBitmapRenderer implements BitmapRenderer {
+public class FastBitmapRenderer implements BitmapRenderer {
 
 	@Inject
-	public DefaultBitmapRenderer()
+	public FastBitmapRenderer()
 	{
 	super();	
 	}
@@ -30,7 +30,12 @@ public class DefaultBitmapRenderer implements BitmapRenderer {
 		bi.setRGB(0, 0, width, height, bitmap, 0, width);
 		
 		try {
-			ImageIO.write(bi,"png",oStream);
+			com.sun.imageio.plugins.png.PNGImageWriter writer=new com.sun.imageio.plugins.png.PNGImageWriter(null);
+			writer.setOutput(oStream);
+			writer.write(bi);
+			oStream.flush();
+			writer.dispose();
+			//ImageIO.write(bi,"png",oStream);
 		} catch (IOException e) {
 			throw new BitmapRendererException(e);
 		}

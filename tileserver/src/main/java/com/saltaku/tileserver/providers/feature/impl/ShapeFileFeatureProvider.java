@@ -20,6 +20,7 @@ import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.saltaku.tileserver.providers.feature.FeatureProvider;
 import com.saltaku.tileserver.providers.feature.FeatureProviderException;
 import com.saltaku.tileserver.providers.feature.TileUtils;
@@ -33,7 +34,7 @@ public class ShapeFileFeatureProvider implements FeatureProvider {
 	Map<String,Envelope> envelopes=new HashMap<String,Envelope>();
 	
 	@Inject
-	public ShapeFileFeatureProvider(String shapeFileStorepath){
+	public ShapeFileFeatureProvider(@Named("shapeFileStorepath") String shapeFileStorepath){
 		this.path=shapeFileStorepath;
 	}
 	

@@ -86,6 +86,7 @@ public class CompressionUtil {
 	  
 	  public static int color2int(int x)
 	  {
-		  return (x ^ 0xFF000000);
+		  
+		  return x==0?-1:(x ^ 0xFF000000);
 	  }
 }

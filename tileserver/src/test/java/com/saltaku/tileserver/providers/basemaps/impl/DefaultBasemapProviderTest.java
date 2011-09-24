@@ -36,7 +36,7 @@ String wgs="GEOGCS[\"WGS84\", DATUM[\"WGS84\", SPHEROID[\"WGS84\", 6378137.0, 29
 		provider=new DefaultBasemapProvider(new LuceneBasemapStorage("/tmp/lucenetest"), 
 				new TileUtils(new ReferencingObjectFactory().createFromWKT(wgs)), 
 				new ShapeFileFeatureProvider("resources/test/shapefiles" ), new ZipCompressor(), 
-				new DefaultBasemapRenderer("aid", Logger.getLogger("DefaultBasemapRenderer")), Logger.getLogger("DefaultBasemapProvider"));
+				new DefaultBasemapRenderer("aid", Logger.getLogger("DefaultBasemapRenderer")));
 		
 	}
 	

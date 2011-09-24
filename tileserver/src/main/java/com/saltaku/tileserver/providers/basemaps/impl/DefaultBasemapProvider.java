@@ -8,10 +8,12 @@ import java.util.logging.Logger;
 
 import org.opengis.geometry.Envelope;
 
+import com.google.inject.Inject;
 import com.saltaku.tileserver.providers.basemaps.BasemapCompressor;
 import com.saltaku.tileserver.providers.basemaps.BasemapProviderException;
 import com.saltaku.tileserver.providers.basemaps.BasemapRenderer;
 import com.saltaku.tileserver.providers.basemaps.BasemapProvider;
+import com.saltaku.tileserver.providers.basemaps.CompressionUtil;
 import com.saltaku.tileserver.providers.basemaps.storage.BasemapStorage;
 import com.saltaku.tileserver.providers.basemaps.storage.BasemapStorageException;
 import com.saltaku.tileserver.providers.feature.FeatureProvider;
@@ -26,23 +28,23 @@ public class DefaultBasemapProvider implements BasemapProvider {
 	private BasemapCompressor compressor;
 	private BasemapRenderer renderer;
 	private ConcurrentHashMap<String, ReadWriteLock> keyLockMap = new ConcurrentHashMap<String, ReadWriteLock>();
-	private Logger log;
+	private Logger log=Logger.getLogger("DefaultBasemapProvider");
 	private int numMisses=0;
 	
-	
-	public DefaultBasemapProvider(BasemapStorage st, TileUtils tileUtils, FeatureProvider featureProvider, BasemapCompressor compressor, BasemapRenderer renderer,Logger log) {
+	@Inject
+	public DefaultBasemapProvider(BasemapStorage st, TileUtils tileUtils, FeatureProvider featureProvider, BasemapCompressor compressor, BasemapRenderer renderer) {
 		super();
 		this.st = st;
 		this.tileUtils = tileUtils;
 		this.featureProvider = featureProvider;
 		this.compressor = compressor;
 		this.renderer = renderer;
-		this.log=log;
+		
 	}
 
 	public int[] getBasemapForTile(String shapeId, int x, int y, int z) throws BasemapProviderException {
-		String key = "t" + x + ";" + y + ";" + z;
-		//String key = new StringBuilder(12).append("t").append(x).append(";").append(y).append(";").append(z);
+		//String key = "t" + x + ";" + y + ";" + z;
+		String key = new StringBuilder(12).append("t").append(x).append(";").append(y).append(";").append(z).toString();
 		
 
 		int[] out = null;
@@ -50,7 +52,11 @@ public class DefaultBasemapProvider implements BasemapProvider {
 		try {
 			b = st.get(shapeId, key);
 		if (b == null) {
-			this.generateMap(shapeId,key, tileUtils.getTileEnvelope(x, y, z), 256, 256);
+			out= this.generateMap(shapeId,key, tileUtils.getTileEnvelope(x, y, z), 256, 256);
+		}
+		else
+		{
+			out=compressor.decompress(b);
 		}
 		} catch (BasemapStorageException e) {
 		throw new BasemapProviderException(e);

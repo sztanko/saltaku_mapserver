@@ -19,6 +19,12 @@ public class CompressionUtilTest {
 	}
 	
 	@Test
+	public void testExtreme()
+	{
+		System.out.println(CompressionUtil.color2int(-16777216));
+	}
+	
+	@Test
 	public void color2intTest()
 	{
 		Color col=Color.blue;

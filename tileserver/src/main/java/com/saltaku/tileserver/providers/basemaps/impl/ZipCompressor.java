@@ -7,11 +7,18 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.saltaku.tileserver.providers.basemaps.BasemapCompressor;
 import com.saltaku.tileserver.providers.basemaps.CompressionUtil;
 
 public class ZipCompressor implements BasemapCompressor {
 	
+	@Inject
+	public ZipCompressor()
+	{
+		
+	}
 	
 	public byte[] compress(int[] in) {
 		byte[] input=CompressionUtil.int2byte(in);
