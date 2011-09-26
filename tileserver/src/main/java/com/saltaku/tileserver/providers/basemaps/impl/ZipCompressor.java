@@ -21,16 +21,21 @@ public class ZipCompressor implements BasemapCompressor {
 	}
 	
 	public byte[] compress(int[] in) {
-		byte[] input=CompressionUtil.int2byte(in);
+		return this.compress(CompressionUtil.int2byte(in), Deflater.BEST_COMPRESSION);
+	}
+	
+	public byte[] compress(byte[] input, int compressionLevel) {
+		//byte[] input=(in);
 		// Create the compressor with highest level of compression
 		Deflater compressor = new Deflater();
-		compressor.setLevel(Deflater.BEST_COMPRESSION);
+		compressor.setLevel(compressionLevel);// BEST_COMPRESSION);
+		//compressor.setLevel(Deflater.BEST_COMPRESSION);
 		compressor.setInput(input);
 		compressor.finish();
 
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(input.length);
 		try{
-		bos.write(CompressionUtil.int2byte(in.length*4));
+		bos.write(CompressionUtil.int2byte(input.length));
 		} catch (IOException e) {
 		}
 

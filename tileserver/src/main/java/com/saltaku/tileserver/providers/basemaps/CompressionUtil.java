@@ -18,7 +18,22 @@ public class CompressionUtil {
 		    }
 		    return dst;
 		}
-		
+	 
+	 public static byte[] fourbitint2byte(int[]src) {
+		    int srcLength = src.length;
+		    byte[]dst = new byte[srcLength >> 2];
+		    int i=0;
+		    int j=0;
+		    while(i<srcLength) {
+		        byte x = (byte)(src[i++] & 0x0f);
+		        x+=(byte)((src[i++] & 0x0f) << 4);
+		        dst[j++]=x;
+		    }
+		    return dst;
+		}
+	
+	 
+	 
 	   public static int[] byte2int(byte[]src) {
 	        int dstLength = src.length >> 2;
 	        int[]dst = new int[dstLength];
@@ -53,6 +68,16 @@ public class CompressionUtil {
 		  out[1] = (byte) ((x >>> 8) & 0xff);
 		  out[2] = (byte) ((x >>> 16) & 0xff);
 		  out[3]= (byte) ((x >>> 24) & 0xff);
+		  return out;
+	  }
+	  
+	  public static byte[] int2rgb(int x)
+	  {
+		  byte[] out=new byte[3];
+		  //out[0] = (byte) ((x >>> 0) & 0xff);           
+		  out[0] = (byte) ((x >>> 8) & 0xff);
+		  out[0] = (byte) ((x >>> 16) & 0xff);
+		  out[0]= (byte) ((x >>> 24) & 0xff);
 		  return out;
 	  }
 

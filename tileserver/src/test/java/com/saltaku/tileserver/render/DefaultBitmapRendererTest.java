@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.saltaku.tileserver.guice.DefaultTestModule;
+import com.saltaku.tileserver.providers.basemaps.BasemapCompressor;
 import com.saltaku.tileserver.providers.basemaps.BasemapProvider;
 import com.saltaku.tileserver.providers.basemaps.BasemapProviderException;
 import com.saltaku.tileserver.providers.mappings.MappingProvider;
@@ -24,6 +25,7 @@ public class DefaultBitmapRendererTest {
 	private MappingProvider mappingProvider;
 	private BitmapRenderer bitmapRenderer;
 	private TranslatorProvider translatorProvider;
+	private BasemapCompressor compressor;
 	
 	@Before
 	public void before()
@@ -33,6 +35,7 @@ public class DefaultBitmapRendererTest {
 		this.basemapProvider=injector.getInstance(BasemapProvider.class);
 		this.mappingProvider=injector.getInstance(MappingProvider.class);
 		this.translatorProvider=injector.getInstance(TranslatorProvider.class);
+		this.compressor=injector.getInstance(BasemapCompressor.class);
 	}
 	
 	@After
@@ -95,7 +98,9 @@ public class DefaultBitmapRendererTest {
 		long t2=System.nanoTime();
 		this.bitmapRenderer.writeBitmap(256, 256, bitmap, new FileOutputStream("resources/test/tiles/"+z+"_"+x+"_"+y+".png"));
 		long t3=System.nanoTime();
-		System.out.println("Took "+(t2-t1)/1000+"mks to generate, "+(t3-t2)/1000+" to draw "+z+"_"+x+"_"+y+".png");
+		int s=compressor.compress(bitmap).length;
+		long t4=System.nanoTime();
+		System.out.println("Took "+(t2-t1)/1000+"mks to generate, "+(t3-t2)/1000+" to draw, "+(t4-t3)/1000+" to compress(+"+s+"b), "+z+"_"+x+"_"+y+".png");
 	}
 	
 	public void renderTileInMemory(int x, int y, int z) throws BasemapProviderException, MappingProviderException, FileNotFoundException, BitmapRendererException
@@ -108,6 +113,8 @@ public class DefaultBitmapRendererTest {
 		long t2=System.nanoTime();
 		this.bitmapRenderer.writeBitmap(256, 256, bitmap, new ByteArrayOutputStream(1000));
 		long t3=System.nanoTime();
-		System.out.println("Took "+(t2-t1)/1000+"mks to generate, "+(t3-t2)/1000+" to draw "+z+"_"+x+"_"+y+".png");
+		int s=compressor.compress(bitmap).length;
+		long t4=System.nanoTime();
+		System.out.println("Took "+(t2-t1)/1000+"mks to generate, "+(t3-t2)/1000+" to draw, "+(t4-t3)/1000+" to compress(+"+s+"b), "+z+"_"+x+"_"+y+".png");
 	}
 }
