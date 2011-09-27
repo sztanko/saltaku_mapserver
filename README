@@ -1,6 +1,6 @@
 Saltaku tileserver is a very fast, scalable, simple and stupid java implementation of ... tileserver!
 
-Version 1.0 is intended to render only shapefiles containing multipolygons to non-antialiased tiles which are practically png files with 16 colour palette.
+Version 1.0 is intended to render only esri shapefiles containing multipolygons to non-antialiased tiles which are practically png files with 16 colour palette.
 But it can do it lightning fast and speed does not depend on number of polygons to render!
 
 This tileserver suits the needs of Saltaku.com, an online tool for visualising and comparing geospatial datasets.
