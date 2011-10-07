@@ -21,17 +21,18 @@ public class CompressionUtil {
 	 
 	 public static byte[] fourbitint2byte(int[]src) {
 		    int srcLength = src.length;
-		    byte[]dst = new byte[srcLength >> 2];
+		    byte[] dst = new byte[srcLength >> 1];
 		    int i=0;
 		    int j=0;
 		    while(i<srcLength) {
-		        byte x = (byte)(src[i++] & 0x0f);
-		        x+=(byte)((src[i++] & 0x0f) << 4);
+		        byte x = (byte)((src[i++] & 0x0f) << 4);
+		        x+=(byte)(src[i++] & 0x0f);
 		        dst[j++]=x;
 		    }
 		    return dst;
 		}
 	
+	 
 	 
 	 
 	   public static int[] byte2int(byte[]src) {
@@ -71,13 +72,24 @@ public class CompressionUtil {
 		  return out;
 	  }
 	  
+	  public static byte[] int2bytele(int x)
+	  {
+		  byte[] out=new byte[4];
+		  out[3] = (byte) ((x >>> 0) & 0xff);           
+		  out[2] = (byte) ((x >>> 8) & 0xff);
+		  out[1] = (byte) ((x >>> 16) & 0xff);
+		  out[0]= (byte) ((x >>> 24) & 0xff);
+		  return out;
+	  }
+	  
 	  public static byte[] int2rgb(int x)
 	  {
 		  byte[] out=new byte[3];
-		  //out[0] = (byte) ((x >>> 0) & 0xff);           
-		  out[0] = (byte) ((x >>> 8) & 0xff);
+		  out[2] = (byte) ((x >>> 0) & 0xff);           
+		  out[1] = (byte) ((x >>> 8) & 0xff);
 		  out[0] = (byte) ((x >>> 16) & 0xff);
-		  out[0]= (byte) ((x >>> 24) & 0xff);
+		  //out[2]= (byte) ((x >>> 24) & 0xff);
+		 // System.out.println(out[0]+Integer.toBinaryString(out[1])+Integer.toBinaryString(out[2]));
 		  return out;
 	  }
 

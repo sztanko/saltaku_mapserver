@@ -28,6 +28,8 @@ import com.saltaku.tileserver.providers.feature.TileUtils;
 import com.saltaku.tileserver.providers.feature.impl.ShapeFileFeatureProvider;
 import com.saltaku.tileserver.providers.mappings.MappingProvider;
 import com.saltaku.tileserver.providers.mappings.impl.CSVMappingProvider;
+import com.saltaku.tileserver.providers.palette.PaletteProvider;
+import com.saltaku.tileserver.providers.palette.impl.SimplePaletteProvider;
 import com.saltaku.tileserver.providers.translator.TranslatorProvider;
 import com.saltaku.tileserver.providers.translator.TranslatorUtils;
 import com.saltaku.tileserver.providers.translator.impl.DefaultTranslator;
@@ -55,9 +57,10 @@ public class DefaultTestModule  extends AbstractModule{
 		bind(BasemapStorage.class).to(LuceneBasemapStorage.class).in(Singleton.class);
 		bind(FeatureProvider.class).to(ShapeFileFeatureProvider.class).in(Singleton.class);
 		bind(MappingProvider.class).to(CSVMappingProvider.class).in(Singleton.class);
-		bind(TranslatorProvider.class).to(DefaultTranslator.class).in(Singleton.class);;
-		//bind(BitmapRenderer.class).to(FastBitmapRenderer.class).in(Singleton.class);;
-		bind(BitmapRenderer.class).to(DefaultBitmapRenderer.class).in(Singleton.class);;
+		bind(TranslatorProvider.class).to(DefaultTranslator.class).in(Singleton.class);
+		bind(BitmapRenderer.class).to(FastBitmapRenderer.class).in(Singleton.class);
+		//bind(BitmapRenderer.class).to(DefaultBitmapRenderer.class).in(Singleton.class);
+		bind(PaletteProvider.class).to(SimplePaletteProvider.class).in(Singleton.class);
 		//bind(Logger.class).toInstance(Logger.getLogger("Test"));
 		
 		bind(String.class).annotatedWith(Names.named("idFieldName")).toInstance("aid");

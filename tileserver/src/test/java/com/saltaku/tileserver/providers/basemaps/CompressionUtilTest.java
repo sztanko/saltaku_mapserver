@@ -25,6 +25,17 @@ public class CompressionUtilTest {
 	}
 	
 	@Test
+	public void testint2rgb()
+	{
+			this.printRGB(0);
+			this.printRGB(1);
+			this.printRGB(32);
+			this.printRGB(8);
+			this.printRGB(256+8);
+			this.printRGB(16777216);
+	}
+	
+	@Test
 	public void color2intTest()
 	{
 		Color col=Color.blue;
@@ -49,4 +60,18 @@ public class CompressionUtilTest {
 		
 		Assert.assertEquals("Color conversion", value, CompressionUtil.color2int(c));
 	}
+	
+	private void printRGB(int value)
+	{
+		byte[] c=CompressionUtil.int2rgb(value);
+		System.out.println("Value: "+value+" - "+Integer.toBinaryString(value));
+		//System.out.println("A: "+c.getAlpha()+" - "+Integer.toBinaryString(c.getAlpha()));
+		System.out.println("R: "+c[0]+" - "+Integer.toBinaryString(c[0]));
+		System.out.println("G: "+c[1]+" - "+Integer.toBinaryString(c[1]));
+		System.out.println("B: "+c[2]+" - "+Integer.toBinaryString(c[2]));
+		
+//		Assert.assertEquals("Color conversion", value, CompressionUtil.color2int(c));
+	}
+	
+
 }

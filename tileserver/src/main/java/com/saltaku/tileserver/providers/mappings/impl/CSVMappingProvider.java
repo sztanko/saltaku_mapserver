@@ -26,7 +26,7 @@ public class CSVMappingProvider implements MappingProvider {
 	private char delimiter;
 	private int valueField;
 	private Logger log;
-	int[] colorMapping;
+	
 	
 	private Map<String, int[]> buffer = new ConcurrentHashMap<String, int[]>();
 
@@ -35,19 +35,18 @@ public class CSVMappingProvider implements MappingProvider {
 				@Named("csvPath") String path, 
 				@Named("csvDelimiter") char delimiter, 
 				@Named("csvValueField") int valueField, 
-				@Named("csvCacheSize") long maxItems, @Named("colorMapping") int[] colorMapping, Logger log){
+				@Named("csvCacheSize") long maxItems, Logger log){
 		this.path=path;
 		this.delimiter=delimiter;
 		this.valueField=valueField;
 		this.maxItems=maxItems;
-		this.colorMapping=colorMapping;
 		this.log=log;
 		this.log.info("Initialized CSVMapping provider with base path "+path);
 	}
 	
 	// private Map<String,Long> timestamps=new HashMap<String,Long>();
 
-	public int[] getMapping(String mapId, String colorMappingId) throws MappingProviderException {
+	public int[] getMapping(String mapId) throws MappingProviderException {
 		//TODO: support variable color mappings;
 		String key = mapId;// + "|" + colorMappingId;
 		
@@ -115,14 +114,14 @@ public class CSVMappingProvider implements MappingProvider {
 
 		out = new int[list.size()];
 		int i = 0;
-		for (Integer num : list) {
-			if(num>=0){
+		for (Integer num : list) { out[i++]=num+1;
+			/*if(num>=0){
 			out[i++] = this.colorMapping[num];
 			}
 			else
 			{
 				out[i++]=0;
-			}
+			}*/
 			
 		}
 		long t2=System.currentTimeMillis();

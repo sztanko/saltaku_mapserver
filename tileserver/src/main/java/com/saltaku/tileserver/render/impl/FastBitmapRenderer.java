@@ -14,15 +14,16 @@ import com.saltaku.tileserver.render.BitmapRenderer;
 import com.saltaku.tileserver.render.BitmapRendererException;
 
 public class FastBitmapRenderer implements BitmapRenderer {
-
+	FastPngWriter w;
+	
 	@Inject
 	public FastBitmapRenderer()
 	{
-	super();	
+		this.w=new FastPngWriter();		
 	}
 	
 	
-	public void writeBitmap(int width, int height, int[] bitmap, OutputStream oStream) throws BitmapRendererException {
+	public void writeBitmap(int width, int height, int[] bitmap, int[] palette, OutputStream oStream) throws BitmapRendererException {
 		BufferedImage bi=new BufferedImage(width, height, 
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g=(Graphics2D)bi.getGraphics();
@@ -30,16 +31,10 @@ public class FastBitmapRenderer implements BitmapRenderer {
 		bi.setRGB(0, 0, width, height, bitmap, 0, width);
 		
 		try {
-			com.sun.imageio.plugins.png.PNGImageWriter writer=new com.sun.imageio.plugins.png.PNGImageWriter(null);
-			writer.setOutput(oStream);
-			writer.write(bi);
-			oStream.flush();
-			writer.dispose();
-			//ImageIO.write(bi,"png",oStream);
+			this.w.writePng(bitmap, palette, oStream);
 		} catch (IOException e) {
 			throw new BitmapRendererException(e);
 		}
 				//bi, "png", );
 	}
-
 }
