@@ -147,7 +147,7 @@ public class DefaultBitmapRendererTest {
 		long t4=System.nanoTime();
 		int s=compressor.compress(bitmap).length;
 		long t5=System.nanoTime();
-		System.out.println((t3-t1)/1000000+" ms in total. Took "+(t2-t1)/1000+"mks to generate, "+(t3-t2)/1000+" fast, "+(t4-t3)/1000+" slow, "+(t4-2*t3+t2)/1000+" difference, "+z+"_"+x+"_"+y+".png");
+		System.out.println((t3-t1)/1000000+" ms in total. Took "+(t2-t1)/1000+"mks to generate, "+(t3-t2)/1000+" fast, "+(t4-t3)/1000+" slow, "+(t4-2*t3+t2)/(t3-t2)+"x speedup, "+z+"_"+x+"_"+y+".png");
 		//System.out.println("Took "+(t2-t1)/1000+"mks to generate, "+(t3-t2)/1000+" to draw, "+(t4-t3)/1000+" to compress(+"+s+"b), "+z+"_"+x+"_"+y+".png");
 	}
 	
