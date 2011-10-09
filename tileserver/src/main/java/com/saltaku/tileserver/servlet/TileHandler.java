@@ -48,11 +48,14 @@ public class TileHandler extends AbstractHandler {
         baseRequest.setHandled(true);
 		bitmapRenderer.writeBitmap(256,256,bitmap,palette, response.getOutputStream());
 		} catch (MappingProviderException e) {
+			e.printStackTrace();
 			throw new ServletException(e);
 		} catch (BasemapProviderException e) {
 			e.printStackTrace();
+			throw new ServletException(e);
 		} catch (BitmapRendererException e) {
 			e.printStackTrace();
+			throw new ServletException(e);
 		}
 		
 	}

@@ -78,12 +78,12 @@ String wgs="GEOGCS[\"WGS84\", DATUM[\"WGS84\", SPHEROID[\"WGS84\", 6378137.0, 29
 		this.concurrentTest(1, 4);
 		//this.concurrentTest(3, 10);
 		System.gc();
-		this.concurrentTest(200, 30); //83006.0ms, 13.83ms per tile
-		this.concurrentTest(300, 20); //77889.0ms, 12.9815ms per tile
-		this.concurrentTest(600, 10); //77169.0ms, 12.8615ms per tile
-		this.concurrentTest(1200, 5); //72788.0ms, 12.131333333333334ms per tile
-		this.concurrentTest(3000, 2); //70168.0ms, 11.694666666666667ms per tile
-		this.concurrentTest(6000, 1); //120945.0ms, 20.1575ms per tile
+		this.concurrentTest(5, 30); //83006.0ms, 13.83ms per tile
+		this.concurrentTest(10, 20); //77889.0ms, 12.9815ms per tile
+		//this.concurrentTest(60, 10); //77169.0ms, 12.8615ms per tile
+		this.concurrentTest(120, 5); //72788.0ms, 12.131333333333334ms per tile
+		this.concurrentTest(300, 2); //70168.0ms, 11.694666666666667ms per tile
+		this.concurrentTest(600, 1); //120945.0ms, 20.1575ms per tile
 	}
 	
 	

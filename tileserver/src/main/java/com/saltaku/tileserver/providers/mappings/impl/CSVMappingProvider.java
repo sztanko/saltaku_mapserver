@@ -112,8 +112,9 @@ public class CSVMappingProvider implements MappingProvider {
 			}
 		}
 
-		out = new int[list.size()];
+		out = new int[list.size()+1];
 		int i = 0;
+		out[i++]=0;
 		for (Integer num : list) { out[i++]=num+1;
 			/*if(num>=0){
 			out[i++] = this.colorMapping[num];

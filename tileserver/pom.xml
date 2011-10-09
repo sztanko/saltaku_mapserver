@@ -83,6 +83,12 @@
       <version>${jettyVersion}</version>
     </dependency>
     
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>${jettyVersion}</version>
+    </dependency>
+    
       <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
@@ -91,6 +97,7 @@
     
   </dependencies>
 <build>
+
 <plugins>
 <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -100,7 +107,30 @@
           <target>1.6</target>
         </configuration>
       </plugin>
-</plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						 <manifest>
+            <mainClass>com.saltaku.tileserver.App</mainClass>
+          </manifest>
+
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 </build> 
  
   <repositories>

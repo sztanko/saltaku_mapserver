@@ -2,6 +2,7 @@ package com.saltaku.tileserver.servlet;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,6 +28,10 @@ public class TileServlet extends HttpServlet {
 	private TranslatorProvider translatorProvider;
 	private PaletteProvider paletteProvider;
 	
+	final int CACHE_DURATION_IN_SECOND = 60 * 60 * 24 * 90; // 90 days
+	final long   CACHE_DURATION_IN_MS = CACHE_DURATION_IN_SECOND  * 1000;
+	
+	
 	@Inject
 	public TileServlet(BasemapProvider basemapProvider, MappingProvider mappingProvider, BitmapRenderer bitmapRenderer, 
 			TranslatorProvider translatorProvider, PaletteProvider paletteProvider) {
@@ -40,38 +45,62 @@ public class TileServlet extends HttpServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-		long t1=System.nanoTime();
+		long t1=System.currentTimeMillis();
 		String shapeId=(String)request.getParameter("id");
 		String mappingName=(String)request.getParameter("map");
 		int x=Integer.parseInt((String)request.getParameter("x"));
 		int y=Integer.parseInt((String)request.getParameter("y"));
 		int z=Integer.parseInt((String)request.getParameter("z"));
-		System.out.println(Thread.currentThread().getId()+" " +request.getQueryString());
+		//System.out.println(Thread.currentThread().getId()+" " +request.getQueryString());
 		int[] baseMap;
 		try {
 			baseMap = basemapProvider.getBasemapForTile(shapeId, x, y, z);
 			int[] mapping = mappingProvider.getMapping(mappingName);
 			int[] bitmap = translatorProvider.translateBaseMap(baseMap, mapping);
 			int[] palette = paletteProvider.getPalette("default");
-			long t2=System.nanoTime();
 			response.setContentType("image/png");
+			response.addHeader("Cache-Control", "max-age=" + CACHE_DURATION_IN_SECOND);
+			response.addHeader("Cache-Control", "must-revalidate");//optional
+			response.setDateHeader("Last-Modified", t1);
+			response.setDateHeader("Expires", t1+CACHE_DURATION_IN_MS);
 			response.setStatus(HttpServletResponse.SC_OK);
+
 			this.bitmapRenderer.writeBitmap(256, 256, bitmap, palette, response.getOutputStream());
-			long t3=System.nanoTime();
-			System.out.println(Thread.currentThread().getId()+" Generated in "+(t3-t1)/1000+" mks "+request.getQueryString());
 		} catch (BasemapProviderException e) {
 			e.printStackTrace();
+			response.setContentType("text/plain");
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			e.printStackTrace(new PrintStream(response.getOutputStream()));
 			throw new ServletException(e);
 		} catch (MappingProviderException e) {
 			e.printStackTrace();
+			response.setContentType("text/plain");
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			e.printStackTrace(new PrintStream(response.getOutputStream()));
 			throw new ServletException(e);
 		} catch (BitmapRendererException e) {
 			e.printStackTrace();
+			response.setContentType("text/plain");
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			e.printStackTrace(new PrintStream(response.getOutputStream()));
 			throw new ServletException(e);
+		}
+		finally{
+			long t3=System.currentTimeMillis();
+			this.doLog(request, t3-t1);
 		}
 		
 	}
 	
+	protected void doLog(HttpServletRequest request, long ms)
+	{
+		StringBuilder sb=new StringBuilder(request.getQueryString());
+		sb.append("\t");
+		sb.append(request.getLocalAddr());
+		sb.append("\t");
+		sb.append(ms).append("ms");
+		System.out.println(sb.toString());
+	}
 	
 	
 }
