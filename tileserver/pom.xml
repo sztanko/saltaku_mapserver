@@ -95,6 +95,12 @@
       <version>3.4.0</version>
     </dependency>
     
+     <dependency>
+      <groupId>com.sleepycat</groupId>
+      <artifactId>je</artifactId>
+      <version>3.3.75</version>
+    </dependency>
+    
   </dependencies>
 <build>
 
@@ -153,5 +159,14 @@
             <name>Open Source Geospatial Foundation Repository</name>
             <url>http://download.osgeo.org/webdav/geotools/</url>
         </repository>
+        
+    <repository>
+      <id>oracleReleases</id>
+      <name>Oracle Released Java Packages</name>
+      <url>http://download.oracle.com/maven</url>
+      <layout>default</layout>
+    </repository>
+  
+  
   </repositories>
 </project>

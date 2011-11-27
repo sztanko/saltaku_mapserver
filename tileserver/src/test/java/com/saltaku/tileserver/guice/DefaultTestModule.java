@@ -22,6 +22,7 @@ import com.saltaku.tileserver.providers.basemaps.impl.DefaultBasemapProvider;
 import com.saltaku.tileserver.providers.basemaps.impl.DefaultBasemapRenderer;
 import com.saltaku.tileserver.providers.basemaps.impl.ZipCompressor;
 import com.saltaku.tileserver.providers.basemaps.storage.BasemapStorage;
+import com.saltaku.tileserver.providers.basemaps.storage.impl.BerkleyBasemapStorage;
 import com.saltaku.tileserver.providers.basemaps.storage.impl.LuceneBasemapStorage;
 import com.saltaku.tileserver.providers.feature.FeatureProvider;
 import com.saltaku.tileserver.providers.feature.TileUtils;
@@ -54,7 +55,8 @@ public class DefaultTestModule  extends AbstractModule{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		bind(BasemapStorage.class).to(LuceneBasemapStorage.class).in(Singleton.class);
+		//bind(BasemapStorage.class).to(LuceneBasemapStorage.class).in(Singleton.class);
+		bind(BasemapStorage.class).to(BerkleyBasemapStorage.class).in(Singleton.class);
 		bind(FeatureProvider.class).to(ShapeFileFeatureProvider.class).in(Singleton.class);
 		bind(MappingProvider.class).to(CSVMappingProvider.class).in(Singleton.class);
 		bind(TranslatorProvider.class).to(DefaultTranslator.class).in(Singleton.class);
@@ -65,6 +67,7 @@ public class DefaultTestModule  extends AbstractModule{
 		
 		bind(String.class).annotatedWith(Names.named("idFieldName")).toInstance("aid");
 		bind(String.class).annotatedWith(Names.named("lucenePath")).toInstance("/tmp/tileserver/test");
+		bind(String.class).annotatedWith(Names.named("bdbPath")).toInstance("/tmp/bdbtest");
 		bind(String.class).annotatedWith(Names.named("shapeFileStorepath")).toInstance("resources/test/shapefiles");
 		bind(String.class).annotatedWith(Names.named("csvPath")).toInstance("resources/test/datasets");
 		bind(Character.class).annotatedWith(Names.named("csvDelimiter")).toInstance(';');
