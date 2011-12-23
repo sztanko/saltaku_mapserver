@@ -78,6 +78,7 @@ public class CSVMappingProvider implements MappingProvider {
 
 	protected int[] loadMapping(String mapId) throws MappingProviderException {
 		this.log.info("Could not find data for "+ mapId+", loading it");
+		if("test".equals(mapId)) return this.loadTestMapping();
 		long t1=System.currentTimeMillis();
 		int[] out = null;
 		List<Integer> list = new ArrayList<Integer>();
@@ -127,6 +128,16 @@ public class CSVMappingProvider implements MappingProvider {
 		}
 		long t2=System.currentTimeMillis();
 		System.out.println("File loaded in "+(t2-t1)+"ms");
+		return out;
+	}
+	
+	protected int[] loadTestMapping()
+	{
+		int[] out=new int[400000];
+		for(int i=0;i<out.length;i++)
+		{
+			out[i]=i%10+1;
+		}
 		return out;
 	}
 

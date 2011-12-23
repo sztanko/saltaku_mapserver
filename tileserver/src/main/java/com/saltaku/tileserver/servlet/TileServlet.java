@@ -45,7 +45,9 @@ public class TileServlet extends HttpServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-		long t1=System.currentTimeMillis();
+		long t1=System.nanoTime();
+		long t2=System.nanoTime();
+		long mt1=System.currentTimeMillis();
 		String shapeId=(String)request.getParameter("id");
 		String mappingName=(String)request.getParameter("map");
 		int x=Integer.parseInt((String)request.getParameter("x"));
@@ -55,6 +57,7 @@ public class TileServlet extends HttpServlet {
 		int[] baseMap;
 		try {
 			baseMap = basemapProvider.getBasemapForTile(shapeId, x, y, z);
+			t2=System.nanoTime();
 			int[] mapping = mappingProvider.getMapping(mappingName);
 			int[] bitmap = translatorProvider.translateBaseMap(baseMap, mapping);
 			int[] palette = paletteProvider.getPalette("default");
@@ -62,7 +65,7 @@ public class TileServlet extends HttpServlet {
 			response.addHeader("Cache-Control", "max-age=" + CACHE_DURATION_IN_SECOND);
 			response.addHeader("Cache-Control", "must-revalidate");//optional
 			response.setDateHeader("Last-Modified", t1);
-			response.setDateHeader("Expires", t1+CACHE_DURATION_IN_MS);
+			response.setDateHeader("Expires", mt1+CACHE_DURATION_IN_MS);
 			response.setStatus(HttpServletResponse.SC_OK);
 
 			this.bitmapRenderer.writeBitmap(256, 256, bitmap, palette, response.getOutputStream());
@@ -86,19 +89,31 @@ public class TileServlet extends HttpServlet {
 			throw new ServletException(e);
 		}
 		finally{
-			long t3=System.currentTimeMillis();
-			this.doLog(request, t3-t1);
+			long t3=System.nanoTime();
+			this.doLog(request, t2-t1, t3-t1);
 		}
 		
 	}
 	
-	protected void doLog(HttpServletRequest request, long ms)
+	protected void doLog(HttpServletRequest request, long ms1, long ms2)
 	{
 		StringBuilder sb=new StringBuilder(request.getQueryString());
 		sb.append("\t");
+		sb.append(request.getParameter("id"));
+		sb.append("\t");
+		sb.append(request.getParameter("map"));
+		sb.append("\t");
+		sb.append(request.getParameter("x"));
+		sb.append("\t");
+		sb.append(request.getParameter("y"));
+		sb.append("\t");
+		sb.append(request.getParameter("z"));
+		sb.append("\t");
 		sb.append(request.getLocalAddr());
 		sb.append("\t");
-		sb.append(ms).append("ms");
+		sb.append(ms1);
+		sb.append("\t");
+		sb.append(ms2);
 		System.out.println(sb.toString());
 	}
 	

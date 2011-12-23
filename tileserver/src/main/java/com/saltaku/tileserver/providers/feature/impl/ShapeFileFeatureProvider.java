@@ -8,13 +8,10 @@ import java.util.Map;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
-import org.geotools.data.Query;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -23,9 +20,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.saltaku.tileserver.providers.feature.FeatureProvider;
 import com.saltaku.tileserver.providers.feature.FeatureProviderException;
-import com.saltaku.tileserver.providers.feature.TileUtils;
-
-
 
 public class ShapeFileFeatureProvider implements FeatureProvider {
 	private String path;
@@ -98,6 +92,17 @@ public class ShapeFileFeatureProvider implements FeatureProvider {
 		String typeName = dataStore.getTypeNames()[0];
 		FeatureSource source = dataStore.getFeatureSource(typeName );
 		return source;
+	}
+
+	public boolean inside(String shapeId,  Envelope tile) throws FeatureProviderException {
+		FeatureSource source;
+		try {
+			source = this.loadShapeFile(shapeId);
+			
+			return source.getBounds().intersects(( org.opengis.geometry.BoundingBox)tile);
+		} catch (IOException e) {
+			throw new FeatureProviderException(e);
+		}
 	}
 
 

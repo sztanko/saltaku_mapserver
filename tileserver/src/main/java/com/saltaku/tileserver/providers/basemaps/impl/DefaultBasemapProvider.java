@@ -31,6 +31,8 @@ public class DefaultBasemapProvider implements BasemapProvider {
 	private Logger log=Logger.getLogger("DefaultBasemapProvider");
 	private int numMisses=0;
 	
+	private final int empty[]=new int[256*256];
+	
 	@Inject
 	public DefaultBasemapProvider(BasemapStorage st, TileUtils tileUtils, FeatureProvider featureProvider, BasemapCompressor compressor, BasemapRenderer renderer) {
 		super();
@@ -39,20 +41,32 @@ public class DefaultBasemapProvider implements BasemapProvider {
 		this.featureProvider = featureProvider;
 		this.compressor = compressor;
 		this.renderer = renderer;
+		for(int i=0;i<empty.length;i++) empty[i]=0;
 		
 	}
 
 	public int[] getBasemapForTile(String shapeId, int x, int y, int z) throws BasemapProviderException {
 		//String key = "t" + x + ";" + y + ";" + z;
+		 
+		Envelope env=tileUtils.getTileEnvelope(x, y, z);
+		try {
+			if(!featureProvider.inside(shapeId, env))
+			{
+				//System.out.println("Empty "+x+", "+y+", "+z);
+				return empty;
+			}
+		} catch (FeatureProviderException e) {
+			throw new BasemapProviderException(e);		}
 		String key = new StringBuilder(12).append("t").append(x).append(";").append(y).append(";").append(z).toString();
 		
+		return this.getBasemap(shapeId, key, env, 256,256);
 
-		int[] out = null;
+		/*int[] out = null;
 		byte[] b;
 		try {
 			b = st.get(shapeId, key);
 		if (b == null) {
-			out= this.generateMap(shapeId,key, tileUtils.getTileEnvelope(x, y, z), 256, 256);
+			out= this.generateMap(shapeId,key,, 256, 256);
 		}
 		else
 		{
@@ -61,12 +75,32 @@ public class DefaultBasemapProvider implements BasemapProvider {
 		} catch (BasemapStorageException e) {
 		throw new BasemapProviderException(e);
 		}
+		return out;*/
+	}
+	
+	protected int[] getBasemap(String shapeId, String key, Envelope env, int width, int height) throws BasemapProviderException
+	{
+		int[] out = null;
+		byte[] b;
+		try {
+			b = st.get(shapeId, key);
+		if (b == null) {
+			out= this.generateMap(shapeId,key, env, width, height);
+		}
+		else
+		{
+			out=compressor.decompress(b);
+		}
+		} catch (BasemapStorageException e) {
+			throw new BasemapProviderException(e);
+		}
 		return out;
 	}
 
 	protected int[] generateMap(String shapeId,String key, Envelope env, int width, int height) throws BasemapProviderException
 	{
 		String sKey = shapeId+"|"+key;
+		//this.log.info("Miss for "+sKey);
 		int[] out=null;
 		keyLockMap.putIfAbsent(sKey, new ReentrantReadWriteLock());
 		Lock writeLock = keyLockMap.get(sKey).writeLock();
@@ -75,8 +109,8 @@ public class DefaultBasemapProvider implements BasemapProvider {
 			writeLock.lock ();
 			byte[] b = st.get(shapeId, key); 
 			if (b == null) {
-				//this.log.info("Miss for "+sKey);
-				out = renderer.drawBasemap(256, 256, featureProvider.get(shapeId, env), env);
+				//this.log.info("Drawing "+sKey);
+				out = renderer.drawBasemap(width, height, featureProvider.get(shapeId, env), env);
 				st.put(shapeId, key, compressor.compress(out));
 				this.numMisses++;
 			} else {
@@ -94,8 +128,7 @@ public class DefaultBasemapProvider implements BasemapProvider {
 	}
 	
 	public int[] getBasemapForMap(String shapeId, Envelope env, int width, int height) throws BasemapProviderException {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getBasemap(shapeId, TileUtils.getEnvelopeKey(env), env, width, height);
 	}
 
 	public int getNumMisses() {

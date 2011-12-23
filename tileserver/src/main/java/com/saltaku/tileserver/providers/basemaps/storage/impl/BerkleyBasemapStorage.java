@@ -1,6 +1,7 @@
 package com.saltaku.tileserver.providers.basemaps.storage.impl;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -21,18 +22,27 @@ public class BerkleyBasemapStorage implements BasemapStorage{
 	 private Database tileDb;
 	 
 	 private final String dbName="tileDb";
+	 private final int syncFreq=1000;
+	 private long putCount=0;
+	 
+	 private Logger log=Logger.getLogger("BerkleyBasemapStorage");
+	 
 	@Inject
 	public BerkleyBasemapStorage(@Named("bdbPath") String  location) throws BasemapStorageException
 	{
 		 EnvironmentConfig envConfig = new EnvironmentConfig();
 	        envConfig.setTransactional(false);
 	        envConfig.setAllowCreate(true);
+	        //envConfig.setCacheSize(1024l*1024l);
+	        //envConfig.setDurability()
 
 	        try {
 				env = new Environment(new File(location), envConfig);
 				DatabaseConfig dbConfig = new DatabaseConfig();
 		        dbConfig.setTransactional(false);
 		        dbConfig.setAllowCreate(true);
+		        dbConfig.setDeferredWrite(true);
+		        
 		        tileDb = env.openDatabase(null, dbName, dbConfig);
 	        } catch (EnvironmentLockedException e) {
 				throw new BasemapStorageException(e);
@@ -60,6 +70,12 @@ public class BerkleyBasemapStorage implements BasemapStorage{
 		DatabaseEntry value=new DatabaseEntry(data);
 		try {
 			tileDb.put(null, new DatabaseEntry(k), value);
+			this.putCount++;
+			if(putCount%syncFreq==0)
+			{
+				log.info("Performing sync on berkley db. PutCount: "+this.putCount);
+				tileDb.sync();
+			}
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			throw new BasemapStorageException(e);
@@ -68,6 +84,7 @@ public class BerkleyBasemapStorage implements BasemapStorage{
 
 	public void shutdown() throws BasemapStorageException {
 		try {
+			tileDb.sync();
 			tileDb.close();
 			env.close();
 		} catch (DatabaseException e) {

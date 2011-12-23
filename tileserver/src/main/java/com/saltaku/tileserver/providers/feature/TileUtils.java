@@ -46,4 +46,14 @@ static double tile2lat(int y, int z) {
 double n = Math.PI - (2.0 * Math.PI * y) / Math.pow(2.0, z);
 return Math.toDegrees(Math.atan(Math.sinh(n)));
 }
+
+public static String getEnvelopeKey(Envelope env)
+{
+	double[] c=env.getLowerCorner().getCoordinate();
+	StringBuilder b=new StringBuilder();
+	b.append(c[0]).append('|').append(c[1]).append('|');
+	c=env.getUpperCorner().getCoordinate();
+	b.append(c[0]).append('|').append(c[1]);
+	return b.toString();
+}
 }
