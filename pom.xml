@@ -10,6 +10,7 @@
 <modules>
 <module>tileserver</module>
 <module>area</module>
+<module>data</module>
 </modules>
 </project>
 
