@@ -2,27 +2,27 @@ package com.saltaku.data;
 
 import java.util.Arrays;
 
-public class DataUtils {
+public class PartitionDataUtils {
 
 	/*
 	 * returns an index of partitions for each of the element
 	 * We also assume that cells that have no values have the value of Double.NEGATIVE_INFINITY
 	 */
-	public int[] partitionDataByEqualSize(double[] in, int numPartitions)
+	public static int[] partitionDataByEqualSize(double[] in, int numPartitions)
 	{
-		double[] partitionLimits=this.getPartitionLimits(in, numPartitions);
+		double[] partitionLimits=PartitionDataUtils.getPartitionLimits(in, numPartitions);
 		int[] out=new int[in.length];
 		for(int i=0;i<in.length;i++)
 		{
 			if(in[i]!=Double.NEGATIVE_INFINITY){
-				out[i]=this.findPartition(in[i], partitionLimits);
+				out[i]=PartitionDataUtils.findPartition(in[i], partitionLimits);
 			}
 		}
 		//System.out.println(Arrays.toString(partitionLimits));
 		return out;
 	}
 	
-	public double[] getPartitionLimits(double in[], int numPartitions)
+	public static double[] getPartitionLimits(double in[], int numPartitions)
 	{
 		double[] partitionLimits=new double[numPartitions];
 		double[] data=Arrays.copyOf(in, in.length);
@@ -38,7 +38,7 @@ public class DataUtils {
 		return partitionLimits;
 	}
 	
-	private int findPartition(double val, double[] partitionLimits)
+	private  static int findPartition(double val, double[] partitionLimits)
 	{
 		int i=0;
 		while(i<partitionLimits.length && val>=partitionLimits[i]) 
@@ -50,7 +50,7 @@ public class DataUtils {
 		return i;
 	}
 	
-	public double[] normalize(double[] in)
+	public static  double[] normalize(double[] in)
 	{
 		double min=Double.POSITIVE_INFINITY, max=Double.NEGATIVE_INFINITY;
 		for(int i=0;i<in.length;i++)
@@ -74,9 +74,9 @@ public class DataUtils {
 		return out;
 	}
 	
-	public int[] partitionByValues(double in[], int numPartitions)
+	public static  int[] partitionByValues(double in[], int numPartitions)
 	{
-		double data[]=this.normalize(in);
+		double data[]=PartitionDataUtils.normalize(in);
 		int[] out=new int[data.length];
 		for(int i=0;i<data.length;i++)
 		{
@@ -86,7 +86,7 @@ public class DataUtils {
 		return out;
 	}
 	
-	public int[] groupCount(int[] in)
+	public static  int[] groupCount(int[] in)
 	{
 		int min=Integer.MAX_VALUE;
 		int max=Integer.MIN_VALUE;
@@ -103,5 +103,15 @@ public class DataUtils {
 		return gc;
 	}
 	
+	public static double[] groupCountNormalized(int[] in)
+	{
+		int[] out_int=PartitionDataUtils.groupCount(in);
+		double[] out=new double[out_int.length];
+		for(int i=0;i<out.length;i++)
+		{
+			out[i]=(double)out_int[i]/in.length;
+		}
+		return out;
+	}
 	
 }

@@ -11,6 +11,7 @@
 <module>tileserver</module>
 <module>area</module>
 <module>data</module>
+<module>interfaces</module>
 </modules>
 </project>
 
