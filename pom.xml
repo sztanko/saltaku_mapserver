@@ -12,6 +12,8 @@
 <module>area</module>
 <module>data</module>
 <module>interfaces</module>
+<module>webapi</module>
+<module>dbstore-mysql</module>
 </modules>
 </project>
 

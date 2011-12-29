@@ -74,7 +74,7 @@ public class PartitionDataUtils {
 		return out;
 	}
 	
-	public static  int[] partitionByValues(double in[], int numPartitions)
+	public static  int[] partitionDataByValues(double in[], int numPartitions)
 	{
 		double data[]=PartitionDataUtils.normalize(in);
 		int[] out=new int[data.length];

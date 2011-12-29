@@ -2,14 +2,30 @@ package com.saltaku.data;
 
 public class CompareDataUtils {
 
-	public static int[][] compareDatasets(int numPartitions, double[] ...data )
+	public static int[][] partitionDataByValues(int numPartitions, double[] ...data )
 	{
 		int numItems=data[0].length;
 		int[][] out=new int[numItems][data.length];
 		//for(int i=0;i<numItems;i++) out[i]=new int[data.length];
 		for(int i=0;i<data.length;i++)
 		{
-			int[] partitions=PartitionDataUtils.partitionByValues(data[i], numPartitions);
+			int[] partitions=PartitionDataUtils.partitionDataByValues(data[i], numPartitions);
+			for(int j=0;j<partitions.length;j++)
+			{
+				out[j][i]=partitions[j];
+			}
+		}
+		return out;
+	}
+	
+	public static int[][] partitionDataByEqualSize(int numPartitions, double[] ...data )
+	{
+		int numItems=data[0].length;
+		int[][] out=new int[numItems][data.length];
+		//for(int i=0;i<numItems;i++) out[i]=new int[data.length];
+		for(int i=0;i<data.length;i++)
+		{
+			int[] partitions=PartitionDataUtils.partitionDataByEqualSize(data[i], numPartitions);
 			for(int j=0;j<partitions.length;j++)
 			{
 				out[j][i]=partitions[j];
@@ -37,7 +53,7 @@ public class CompareDataUtils {
 	
 	public static double correlation(int numPartitions, double[] data1,double[] data2)
 	{
-		double[][] d=CompareDataUtils.distribution(numPartitions,CompareDataUtils.compareDatasets(numPartitions, data1, data2));
+		double[][] d=CompareDataUtils.distribution(numPartitions,CompareDataUtils.partitionDataByValues(numPartitions, data1, data2));
 		double []s1=new double[numPartitions];
 		double []s2=new double[numPartitions];
 		for(int i=0;i<numPartitions;i++)
@@ -65,8 +81,8 @@ public class CompareDataUtils {
 	
 	public static double pearsonCorrelation(double[] d1, double[] d2, int numPartitions)
 	{
-		double[] scores1=PartitionDataUtils.groupCountNormalized(PartitionDataUtils.partitionByValues(d1,numPartitions));
-		double[] scores2=PartitionDataUtils.groupCountNormalized(PartitionDataUtils.partitionByValues(d2,numPartitions));
+		double[] scores1=PartitionDataUtils.groupCountNormalized(PartitionDataUtils.partitionDataByValues(d1,numPartitions));
+		double[] scores2=PartitionDataUtils.groupCountNormalized(PartitionDataUtils.partitionDataByValues(d2,numPartitions));
 		double result = 0;
 	        double sum_sq_x = 0;
 	        double sum_sq_y = 0;
