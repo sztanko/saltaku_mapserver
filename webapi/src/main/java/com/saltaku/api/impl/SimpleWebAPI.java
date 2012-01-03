@@ -10,6 +10,7 @@ import com.saltaku.api.APIException;
 import com.saltaku.api.WebAPI;
 import com.saltaku.api.beans.AreaGeometryData;
 import com.saltaku.api.beans.DataSetInfo;
+import com.saltaku.api.beans.DataType;
 import com.saltaku.api.beans.PartitioningType;
 import com.saltaku.beans.Area;
 import com.saltaku.beans.AreaGeometry;
@@ -23,6 +24,7 @@ import com.saltaku.data.PartitionDataUtils;
 import com.saltaku.store.DBStore;
 import com.saltaku.store.DBStoreException;
 
+
 public class SimpleWebAPI implements WebAPI{
 
 	DBStore dbStore;
@@ -33,7 +35,7 @@ public class SimpleWebAPI implements WebAPI{
 		this.dbStore=dbStore;
 	}
 	
-	public Map<String,Double>[] getPartitions(int dataSetId, int areaId, String aggregation, int numPartitions, PartitioningType pType) throws APIException {
+	public Map<String,Double>[] getPartitions(int dataSetId, int areaId, int normalizerId, String aggregation, int numPartitions, PartitioningType pType) throws APIException {
 		Map<String,Double>[] partitionsData=null;
 		int[] partitions=null;
 		try{
@@ -67,7 +69,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 
 
-	public Map<String,Double>[][][] getPartitions2(int dataSetId1, int dataSetId2, int areaId, String aggregation, int numPartitions, PartitioningType pType) throws APIException {
+	public Map<String,Double>[][][] getPartitions2(int dataSetId1, int dataSetId2, int normalizerId, int areaId, String aggregation, int numPartitions, PartitioningType pType) throws APIException {
 		try{
 		DataSetData dsData1=dbStore.getRawData(dataSetId1, areaId, aggregation);
 		DataSetData dsData2=dbStore.getRawData(dataSetId2, areaId, aggregation);
@@ -113,7 +115,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 
 
-	public AreaGeometryData[] getData(int dataSetId, int areaId, String aggregation, double min, double max) throws APIException {
+	public AreaGeometryData[] getData(int dataSetId, int areaId,int normalizerId, String aggregation, double min, double max) throws APIException {
 		try{
 		DataSetData dsData=dbStore.getRawData(dataSetId, areaId,aggregation);
 		int c=0;
@@ -140,7 +142,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 	
 	
-	public AreaGeometryData[] getDataById(int dataSetId, int areaId, String aggregation, int[] idList) throws APIException {
+	public AreaGeometryData[] getDataById(int dataSetId, int areaId,int normalizerId, String aggregation, int[] idList) throws APIException {
 	try{
 		DataSetData dsData=dbStore.getRawData(dataSetId, areaId,aggregation);
 		AreaGeometry[] geometries=dbStore.getAreaGeometry(areaId, idList,false);
@@ -161,10 +163,10 @@ public class SimpleWebAPI implements WebAPI{
 	}
 
 
-	public DataSetInfo getDataSetInfo(String dataSetId) throws APIException {
+	public DataSetInfo getDataSetInfo(int dataSetId) throws APIException {
 		try{
 			DataSet dataSet=dbStore.getDataSet(dataSetId);
-		Tag[] tags=dbStore.getTags(dataSetId);
+		Tag[] tags=dbStore.getTags(dataSetId,DataType.DATASET.toString());
 		DataSetData[] availableData=dbStore.getAvailableDataForDataSet(dataSetId);
 		DataSetInfo out=new DataSetInfo();
 		out.dataSet=dataSet;
@@ -200,7 +202,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 	}
 	
-	public DataSetData getRawData(int dataSetId, int areaId, String aggregation) throws APIException{
+	public DataSetData getRawData(int dataSetId, int areaId, int normalizerId,String aggregation) throws APIException{
 	try{
 		return dbStore.getRawData(dataSetId, areaId, aggregation);
 	}
@@ -210,7 +212,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 	}
 
-	public DataSet[] getCorrelatedDataSets(String dataSetId, int maxNum) throws APIException {
+	public DataSet[] getCorrelatedDataSets(int dataSetId, int maxNum) throws APIException {
 		try{
 		return this.dbStore.getCorrelatedDataSets(dataSetId,0.0, maxNum);
 		}
@@ -221,7 +223,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 
 
-	public Object getRelatedDataSets(String dataSetId, int maxNum) {
+	public Object getRelatedDataSets(int dataSetId, int maxNum) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -260,6 +262,16 @@ public class SimpleWebAPI implements WebAPI{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public void close() throws APIException
+	{
+		try {
+			this.dbStore.close();
+		} catch (DBStoreException e) {
+			throw new APIException(e);
+		}
+	}
+	
 	
 	
 

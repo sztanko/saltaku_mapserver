@@ -8,7 +8,10 @@
   <groupId>com.saltaku</groupId>
   <artifactId>interfaces</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  
+      <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jettyVersion>7.5.0.v20110901</jettyVersion>
+  </properties>
   <dependencies>
       <dependency>
       <groupId>junit</groupId>
@@ -46,11 +49,84 @@
       <artifactId>gt-render</artifactId>
       <version>8.0-M1</version>
     </dependency>
+        <dependency>
+    <groupId>com.google.inject</groupId>
+    <artifactId>guice</artifactId>
+    <version>3.0-rc2</version>
+    </dependency>
     
+    <dependency>
+	<groupId>commons-lang</groupId>
+	<artifactId>commons-lang</artifactId>
+	<version>2.3</version>
+</dependency>
+            
+             <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>1.7.1</version>
+      <scope>compile</scope>
+    </dependency>
+    
+  <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>${jettyVersion}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>${jettyVersion}</version>
+    </dependency>
+    
+       
+    <dependency>
+        <groupId>net.sf.apt-jelly</groupId>
+        <artifactId>apt-jelly-core</artifactId>
+        <version>2.15</version>
+    </dependency>
+    <dependency>
+        <groupId>net.sf.apt-jelly</groupId>
+        <artifactId>apt-jelly-freemarker</artifactId>
+        <version>2.15</version>
+    </dependency>
   </dependencies>
 <build>
 
 <plugins>
+<plugin>
+<groupId>org.codehaus.mojo</groupId>
+<artifactId>apt-maven-plugin</artifactId> 
+<version>1.0-alpha-4</version> 
+<configuration>
+    <factory>net.sf.jelly.apt.freemarker.FreemarkerProcessorFactory</factory>
+    <options>
+        <option>template=${basedir}/src/main/resources/apt/gen_api_servlet.fmt</option>
+    </options>
+    <fork>true</fork>
+</configuration>
+<dependencies>
+    <dependency>
+        <groupId>net.sf.apt-jelly</groupId>
+        <artifactId>apt-jelly-core</artifactId>
+        <version>2.15</version>
+    </dependency>
+    <dependency>
+        <groupId>net.sf.apt-jelly</groupId>
+        <artifactId>apt-jelly-freemarker</artifactId>
+        <version>2.15</version>
+    </dependency>
+</dependencies>
+<executions>
+    <execution>
+        <goals>
+            <goal>process</goal>
+        </goals>
+    </execution>
+</executions>
+</plugin>
+
 <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -91,6 +167,13 @@
             <name>Java.net repository</name>
             <url>http://download.java.net/maven/2</url>
         </repository>
+        
+        <repository>
+        <id>codehous</id>
+        <name>Codehous</name>
+        <url>http://repository.codehaus.org/</url> 
+        </repository>
+        
      <repository>
             <id>maven-central</id>
             <name>Ibiblio</name>

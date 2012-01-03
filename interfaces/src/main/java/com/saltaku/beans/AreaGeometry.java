@@ -27,10 +27,10 @@ public class AreaGeometry {
 	public String area_code;
 	public String name, english_name;
 	public double area;
-	public Point centroid;
+	public String centroid;
 	public String shape;
 	public String simple_shape;
-	public Envelope bb;
+	public String bb;
 	public Date insertTime;
 	
 	@Override

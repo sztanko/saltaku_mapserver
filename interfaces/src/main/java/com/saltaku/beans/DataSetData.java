@@ -7,7 +7,7 @@ import org.opengis.geometry.Envelope;
 public class DataSetData {
 	public int dataSet;
 	public int areaId;
-	public Envelope bbox;
+	public String bbox;
 	public String aggregation;
 	public double[] data;
 	@Override

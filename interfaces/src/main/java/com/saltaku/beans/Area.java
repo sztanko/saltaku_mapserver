@@ -1,9 +1,6 @@
 package com.saltaku.beans;
 
-import java.awt.Point;
 import java.util.Date;
-
-import org.opengis.geometry.Envelope;
 
 /*
  * 
@@ -26,8 +23,8 @@ public class Area {
 	public int parentId;
 	public String name;
 	public String source;
-	public Envelope bbox;
-	public Point centroid;
+	public String bbox;
+	public String centroid;
 	public int numItems;
 	public double area;
 	public double min_area, max_area;

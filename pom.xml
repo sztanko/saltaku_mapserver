@@ -14,6 +14,7 @@
 <module>interfaces</module>
 <module>webapi</module>
 <module>dbstore-mysql</module>
+<module>data-server</module>
 </modules>
 </project>
 

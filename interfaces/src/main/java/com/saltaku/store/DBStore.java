@@ -10,9 +10,10 @@ import com.saltaku.beans.Tag;
 public interface DBStore {
 	public DataSetData getRawData(int datasetId, int areaId, String aggregation)  throws DBStoreException;
 	public AreaGeometry[] getAreaGeometry(int areaId, int[] ids, boolean fetchGeometry)  throws DBStoreException;
-	public DataSet getDataSet(String datasetId)  throws DBStoreException;
-	public Tag[] getTags(String dataSetId)  throws DBStoreException;
-	public DataSetData[] getAvailableDataForDataSet(String dataSetId)  throws DBStoreException;
+	public DataSet getDataSet(int datasetId)  throws DBStoreException;
+	public Tag[] getTags(int dataSetId, String type)  throws DBStoreException;
+	public DataSetData[] getAvailableDataForDataSet(int dataSetId)  throws DBStoreException;
 	public Area getArea(int areaId)  throws DBStoreException;
-	public DataSet[] getCorrelatedDataSets(String dataSetId, double maxCorrelation, int maxNum)  throws DBStoreException;
+	public DataSet[] getCorrelatedDataSets(int dataSetId, double maxCorrelation, int maxNum)  throws DBStoreException;
+	public void close() throws DBStoreException;
 }
