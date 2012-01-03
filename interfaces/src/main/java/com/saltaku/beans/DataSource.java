@@ -20,6 +20,7 @@ public class DataSource {
 	public String uploader;
 	public boolean isPublic;
 	public String geoKeyType;
+	public int geoKeyColumn;
 	public String[] aggregators;
 	public String separator;
 	public int startLine;

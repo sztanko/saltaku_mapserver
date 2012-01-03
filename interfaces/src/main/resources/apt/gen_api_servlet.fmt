@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
-import com.saltaku.api.WebAPI;
+import ${type.package}.${type.simpleName};
 import com.saltaku.api.util.Request2JavaUtils;
 
 
@@ -36,10 +36,11 @@ public class ${type.simpleName}Servlets {
    }
    
    <@forAllMethods var="method" annotation="com.saltaku.api.annotations.APICall" annotationVar="methodAnnotation">
+   @SuppressWarnings("serial")
 protected static class ${method.simpleName?cap_first}Servlet  extends HttpServlet { 
 
-  private ${type.simpleName} api;
-	Gson gson = new Gson();
+    private ${type.simpleName} api;
+	Gson gson = Request2JavaUtils.buildGson();
 	
 	public ${method.simpleName?cap_first}Servlet(${type.simpleName} api) {
 		super();
@@ -47,7 +48,8 @@ protected static class ${method.simpleName?cap_first}Servlet  extends HttpServle
 	}
 	
 	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+	@SuppressWarnings("unchecked")
+	public void do${methodAnnotation.method}(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
                 // ${method}
                 System.out.println("${method.simpleName?cap_first} - start");
                 long t0=System.nanoTime();
@@ -58,7 +60,7 @@ protected static class ${method.simpleName?cap_first}Servlet  extends HttpServle
                 
                 response.setContentType("application/json");
                 <@forAllParameters var="param">
-                <#if param.type="int" || param.type="double" || param.type="float" || param.type="long" || param.type="short" || param.type="boolean" >
+                <#if param.type="int" || param.type="double" || param.type="float" || param.type="long" || param.type="short" || param.type="char" || param.type="boolean" >
                 ${param.type} ${param.simpleName};
                 <#else>
                 ${param.type} ${param.simpleName} = null;
@@ -66,42 +68,60 @@ protected static class ${method.simpleName?cap_first}Servlet  extends HttpServle
                 </@forAllParameters>
                 try{
                 <@forAllParameters var="param">
+                /*
+                **
+                ** Validating ${param.type} ${param.simpleName} **
+                **
+                */
+	                <#assign isMandatory=true>
+	                parameterDescription="No description";
+	                <@ifHasAnnotation declaration=param annotation="com.saltaku.api.annotations.APIParam" var="pAnnotation">
+	                <#assign isMandatory=pAnnotation.isMandatory />
+	                parameterDescription="${pAnnotation.description}";
+	                </@ifHasAnnotation>
+	                p=request.getParameter("${param.simpleName}");
+	                if(p==null)
+	                	{
+	                		 <#if isMandatory=true >
+	                		throw new IllegalArgumentException("Parameter is missing. \n${param.type} ${param.simpleName} - "+parameterDescription);
+	                		<#else>
+	                		p="";
+	                		<@ifHasAnnotation declaration=param annotation="com.saltaku.api.annotations.APIParam" var="pAnnotation">
+	                		p="${pAnnotation.defaultValue}";
+	                		</@ifHasAnnotation>
+	                		</#if>
+	                	}
+	            	try{
+	            		<#if param.type="int" > 
+	            		${param.simpleName}=Integer.parseInt(p);
+	            		<#elseif param.type="double">
+	            		${param.simpleName}=Double.parseDouble(p);
+	            		<#elseif param.type="char">
+	            		${param.simpleName}=p.charAt(0);
+	            		<#elseif param.type="boolean">
+	            		${param.simpleName}=Boolean.parseBoolean(p);
+		                <#elseif param.type="java.lang.String">
+	            		${param.simpleName}=p;
+	    		        <#elseif param.type="int[]">
+	            		${param.simpleName}=Request2JavaUtils.toIntArray(request.getParameterValues("${param.simpleName}"));
+	            		<#elseif param.type="java.lang.String[]"> 
+	            		${param.simpleName}=request.getParameterValues(p);
+	            		<#elseif param.type="java.util.Map<java.lang.String,java.lang.String>"> 
+	            		${param.simpleName}=Request2JavaUtils.toStringMap(request.getParameterValues("${param.simpleName}"));
+	            		<#elseif param.type="java.util.Map<java.lang.String,java.lang.Integer>"> 
+	            		${param.simpleName}=Request2JavaUtils.toIntMap(request.getParameterValues("${param.simpleName}"));
+	            		<#elseif param.type="java.util.Date">
+	            		${param.simpleName}=Request2JavaUtils.parseDate(p);
+	            		<#else>
+	            		${param.simpleName} = ${param.type}.valueOf(p);
+	            		</#if>
+	            		} catch(Exception e){
+	            			
+	            			throw new IllegalArgumentException("${param.simpleName} should be of type ${param.type}. It's value is \""+p+"\"");
+	            		} 
+	            // ----- ${param.type} ${param.simpleName} end ---- 
                 
-                <#assign isMandatory=true>
-                parameterDescription="No description";
-                <@ifHasAnnotation declaration=param annotation="com.saltaku.api.annotations.APIParam" var="pAnnotation">
-                <#assign isMandatory=pAnnotation.isMandatory />
-                parameterDescription="${pAnnotation.description}";
-                </@ifHasAnnotation>
-                p=request.getParameter("${param.simpleName}");
                 
-                if(p==null)
-                	{
-                		 <#if isMandatory=true >
-                		throw new IllegalArgumentException("Parameter is missing. \n${param.type} ${param.simpleName} - "+parameterDescription);
-                		<#else>
-                		p="";
-                		<@ifHasAnnotation declaration=param annotation="com.saltaku.api.annotations.APIParam" var="pAnnotation">
-                		p="${pAnnotation.defaultValue}";
-                		</@ifHasAnnotation>
-                		</#if>
-                	}
-            	try{
-            		<#if param.type="int" > 
-            		${param.simpleName}=Integer.parseInt(p);
-            		<#elseif param.type="double">
-            		${param.simpleName}=Double.parseDouble(p);
-	                <#elseif param.type="java.lang.String">
-            		${param.simpleName}=p;
-    		        <#elseif param.type="int[]">
-            		${param.simpleName}=Request2JavaUtils.toIntArray(request,p);
-            		<#else>
-            		${param.simpleName} = ${param.type}.valueOf(p);
-            		</#if>
-            		} catch(Exception e){
-            			
-            			throw new IllegalArgumentException("${param.simpleName} should be of type ${param.type}. It's value is \""+p+"\"");
-            		} 
                 </@forAllParameters>
                 <#assign numParams=0>
                 <@forAllParameters var="param" indexVar="pi"> <#assign numParams=pi></@forAllParameters>

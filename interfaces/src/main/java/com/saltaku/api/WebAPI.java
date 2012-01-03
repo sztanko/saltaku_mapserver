@@ -60,7 +60,9 @@ public interface WebAPI {
 	
 	@APICall
 	public Object getRelatedDataSets(int dataSetId,@APIParam(isMandatory=false, defaultValue="10") int maxNum) throws APIException;
-//	public DataSet[] findByTags(Map<String, String> tags, int maxNum) throws APIException;
+
+	@APICall
+	public DataSet[] findByTags(Map<String,String> tags, int maxNum) throws APIException;
 	
 	@APICall
 	public Area getAreaInfo(int areaId) throws APIException;
