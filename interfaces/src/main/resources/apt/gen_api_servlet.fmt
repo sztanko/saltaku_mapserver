@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-import com.google.gson.Gson;
+import com.google.gson.Gson; 
 import ${type.package}.${type.simpleName};
 import com.saltaku.api.util.Request2JavaUtils;
 
@@ -92,7 +92,7 @@ protected static class ${method.simpleName?cap_first}Servlet  extends HttpServle
 	                		</#if>
 	                	}
 	            	try{
-	            		<#if param.type="int" > 
+	            		<#if param.type="int" >
 	            		${param.simpleName}=Integer.parseInt(p);
 	            		<#elseif param.type="double">
 	            		${param.simpleName}=Double.parseDouble(p);
