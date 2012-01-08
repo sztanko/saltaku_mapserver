@@ -23,13 +23,13 @@ public interface AreaAPI {
 			String shpZipData,String name, String source, String columnForCode, String columnForName, String columnForEnglishName) 
 				throws APIException;
 	@APICall
-	public List<Area> suggestChildren(int areaId) throws APIException;
+	public List<Area> suggestChildren(String areaId) throws APIException;
 	
 	@APICall
-	public List<Area> suggestParents(int areaId) throws APIException;
+	public List<Area> suggestParents(String areaId) throws APIException;
 	
 	@APICall
-	public List<AreaGeometry> assignChild(int childAreaId, int parentAreaId) throws APIException;
+	public List<AreaGeometry> assignChild(String childAreaId, String parentAreaId) throws APIException;
 	
 	public void close() throws APIException;
 	

@@ -1,0 +1,23 @@
+{
+    "geoKey": "lsoa",
+    "tags": {
+        "aggregator": "average",
+        "country": "United Kingdom",
+        "createDate": "Wed Mar 30 23:56:51 UTC 2011",
+        "date": "2010",
+        "description": "Description",
+        "id": "wauzh8xg",
+        "location": "England",
+        "max": "70.14",
+        "min": "0.34",
+        "name": "Index of multiple deprivation",
+        "size": "32481",
+        "source": "National Statistics Office",
+        "subname": "Barriers to housing",
+        "subtype": "average",
+        "timestamp": "1301529411366",
+        "url": "http://www.communities.gov.uk/publications/communities/indiciesdeprivation07",
+        "valuedescription": "The smaller the value is, the less deprived is the area",
+        "wiki_url": "http://en.wikipedia.org/wiki/Indices_of_deprivation_2007"
+    }
+}

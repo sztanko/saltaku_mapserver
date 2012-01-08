@@ -10,7 +10,7 @@ tag_value	varchar(40000)	No
  */
 
 public class Tag {
-	public int id;
+	public String id;
 	public String type;
 	public String name;
 	public String value;

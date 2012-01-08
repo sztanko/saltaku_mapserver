@@ -19,6 +19,13 @@ public class SimpleDataSerializer implements DataSerializer {
 		return toDoubleA(in);
 	}
 
+	public byte[] serialize(int[] in) {
+		return toByta(in);
+	}
+
+	public int[] deserializeAsIntArray(byte[] in) {
+		return toIntA(in);
+	}
 
 	public static byte[] toByta(long data) {
 	    return new byte[] {
@@ -86,5 +93,46 @@ public class SimpleDataSerializer implements DataSerializer {
 	            (long)(0xff & data[7]) << 0
 	            );
 	}
+
+	
+	 public  byte[] toByta(int data) {
+	      return new byte[] {
+	      (byte)((data >> 24) & 0xff),
+	      (byte)((data >> 16) & 0xff),
+	      (byte)((data >> 8) & 0xff),
+	      (byte)((data >> 0) & 0xff),
+	      };
+	      }
+	       
+	      public  byte[] toByta(int[] data) {
+	      if (data == null) return null;
+	      // ----------
+	      byte[] byts = new byte[data.length * 4];
+	      for (int i = 0; i < data.length; i++)
+	      System.arraycopy(toByta(data[i]), 0, byts, i * 4, 4);
+	      return byts;
+	      }
+	      
+	      public  int toInt(byte[] data) {
+		      if (data == null || data.length != 4)
+			      return 0x0;
+
+		      return (0xff & data[0]) << 24 | (0xff & data[1]) << 16 | (0xff & data[2]) << 8 | (0xff & data[3]) << 0;
+	      }
+	       
+	      public  int[] toIntA(byte[] data) {
+	      if (data == null || data.length % 4 != 0) return null;
+	      // ----------
+	      int[] ints = new int[data.length / 4];
+	      for (int i = 0; i < ints.length; i++)
+	      ints[i] = toInt( new byte[] {
+	      data[(i*4)],
+	      data[(i*4)+1],
+	      data[(i*4)+2],
+	      data[(i*4)+3],
+	      } );
+	      return ints;
+	      }
+	
 	
 }

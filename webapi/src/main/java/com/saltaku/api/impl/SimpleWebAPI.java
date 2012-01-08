@@ -2,6 +2,7 @@ package com.saltaku.api.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +15,7 @@ import com.saltaku.api.beans.DataType;
 import com.saltaku.api.beans.PartitioningType;
 import com.saltaku.beans.Area;
 import com.saltaku.beans.AreaGeometry;
+import com.saltaku.beans.Correlation;
 import com.saltaku.beans.DataSet;
 import com.saltaku.beans.DataSetData;
 import com.saltaku.beans.Tag;
@@ -35,7 +37,7 @@ public class SimpleWebAPI implements WebAPI{
 		this.dbStore=dbStore;
 	}
 	
-	public Map<String,Double>[] getPartitions(int dataSetId, int areaId, int normalizerId, String aggregation, int numPartitions, PartitioningType pType) throws APIException {
+	public Map<String,Double>[] getPartitions(String dataSetId, String areaId, String normalizerId, String aggregation, int numPartitions, PartitioningType pType) throws APIException {
 		Map<String,Double>[] partitionsData=null;
 		int[] partitions=null;
 		try{
@@ -69,7 +71,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 
 
-	public Map<String,Double>[][][] getPartitions2(int dataSetId1, int dataSetId2, int normalizerId, int areaId, String aggregation, int numPartitions, PartitioningType pType) throws APIException {
+	public Map<String,Double>[][][] getPartitions2(String dataSetId1, String dataSetId2, String normalizerId, String areaId, String aggregation, int numPartitions, PartitioningType pType) throws APIException {
 		try{
 		DataSetData dsData1=dbStore.getRawData(dataSetId1, areaId, aggregation);
 		DataSetData dsData2=dbStore.getRawData(dataSetId2, areaId, aggregation);
@@ -115,7 +117,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 
 
-	public AreaGeometryData[] getData(int dataSetId, int areaId,int normalizerId, String aggregation, double min, double max) throws APIException {
+	public AreaGeometryData[] getData(String dataSetId, String areaId,String normalizerId, String aggregation, double min, double max) throws APIException {
 		try{
 		DataSetData dsData=dbStore.getRawData(dataSetId, areaId,aggregation);
 		int c=0;
@@ -142,7 +144,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 	
 	
-	public AreaGeometryData[] getDataById(int dataSetId, int areaId,int normalizerId, String aggregation, int[] idList) throws APIException {
+	public AreaGeometryData[] getDataById(String dataSetId, String areaId,String normalizerId, String aggregation, int[] idList) throws APIException {
 	try{
 		DataSetData dsData=dbStore.getRawData(dataSetId, areaId,aggregation);
 		AreaGeometry[] geometries=dbStore.getAreaGeometry(areaId, idList,false);
@@ -163,7 +165,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 
 
-	public DataSetInfo getDataSetInfo(int dataSetId) throws APIException {
+	public DataSetInfo getDataSetInfo(String dataSetId) throws APIException {
 		try{
 			DataSet dataSet=dbStore.getDataSet(dataSetId);
 		Tag[] tags=dbStore.getTags(dataSetId,DataType.DATASET.toString());
@@ -177,7 +179,7 @@ public class SimpleWebAPI implements WebAPI{
 		}
 		Map<String, Set<String>> availableAggregations=new HashMap<String,Set<String>>();
 		Map<String,Area> availableAreas=new HashMap<String,Area>();
-		Map<Integer,String> availableAreaIds=new HashMap<Integer,String>();
+		Map<String,String> availableAreaIds=new HashMap<String,String>();
 		for(DataSetData data: availableData)
 		{
 			String areaName=availableAreaIds.get(data.areaId);
@@ -202,7 +204,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 	}
 	
-	public DataSetData getRawData(int dataSetId, int areaId, int normalizerId,String aggregation) throws APIException{
+	public DataSetData getRawData(String dataSetId, String areaId, String normalizerId,String aggregation) throws APIException{
 	try{
 		return dbStore.getRawData(dataSetId, areaId, aggregation);
 	}
@@ -212,9 +214,9 @@ public class SimpleWebAPI implements WebAPI{
 	}
 	}
 
-	public DataSet[] getCorrelatedDataSets(int dataSetId, int maxNum) throws APIException {
+	public List<Correlation> getCorrelatedDataSets(String dataSetId, String correlationType, int maxNum) throws APIException {
 		try{
-		return this.dbStore.getCorrelatedDataSets(dataSetId,0.0, maxNum);
+		return this.dbStore.getCorrelatedDataSets(dataSetId,correlationType, 0.0, maxNum);
 		}
 	catch(DBStoreException e)
 	{
@@ -223,7 +225,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 
 
-	public Object getRelatedDataSets(int dataSetId, int maxNum) {
+	public Object getRelatedDataSets(String dataSetId, int maxNum) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -234,7 +236,7 @@ public class SimpleWebAPI implements WebAPI{
 		return null;
 	}
 
-	public Area getAreaInfo(int areaId) throws APIException {
+	public Area getAreaInfo(String areaId) throws APIException {
 	try{
 		return dbStore.getArea(areaId);
 	}
@@ -245,7 +247,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 
 
-	public AreaGeometry getAreaGeometry(int areaId, int geomId) throws APIException {
+	public AreaGeometry getAreaGeometry(String areaId, int geomId) throws APIException {
 		try{
 		int[] ids=new int[1];
 		ids[0]=geomId;
@@ -258,7 +260,7 @@ public class SimpleWebAPI implements WebAPI{
 	}
 
 
-	public AreaGeometry getNeighbours(int areaId, int geomId, int maxNum) {
+	public AreaGeometry getNeighbours(String areaId, int geomId, int maxNum) {
 		// TODO Auto-generated method stub
 		return null;
 	}

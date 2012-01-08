@@ -20,32 +20,32 @@ public interface DataSetAPI {
 
 	@APICall(method="Post")
 	public String uploadDataSource(
-			String data, String uploaderName, boolean isPublic, String geoKeyType, int geoKeyColumn, int outputAreaId, 
+			String data, String uploaderName, boolean isPublic, String geoKeyType, int geoKeyColumn, String outputAreaId, 
 			String[] aggregators, char separator, int start_line, Map<String,Integer> columns) 
 				throws APIException;
 	
 	@APICall(method="Post")
 	public DataSource guessDataSet(
-			String data, String geoKeyType, int geoKeyColumn, int outputAreaId) 
+			String data, String geoKeyType, int geoKeyColumn, String outputAreaId) 
 				throws APIException;
 	
 	@APICall
-	public String replaceDataSetTags(int dataSetId, Map<String,String> tag) throws APIException;
+	public String replaceDataSetTags(String dataSetId, Map<String,String> tag) throws APIException;
 	
 	@APICall
-	public String replaceDataSetTag(int dataSetId, String tagName, String tagNewValue) throws APIException;
+	public String replaceDataSetTag(String dataSetId, String tagName, String tagNewValue) throws APIException;
 	
 	@APICall
-	public String replaceDataSourceTags(int dataSourceId, Map<String,String> tag) throws APIException;
+	public String replaceDataSourceTags(String dataSourceId, Map<String,String> tag) throws APIException;
 	
 	@APICall
-	public String replaceDataSourceTag(int dataSourceId, String tagName, String tagNewValue) throws APIException;
+	public String replaceDataSourceTag(String dataSourceId, String tagName, String tagNewValue) throws APIException;
 	
 	@APICall
-	public String changeDataSet(int dataSetId, String name, Date startDate, Date endDate) throws APIException;
+	public String changeDataSet(String dataSetId, String name, Date startDate, Date endDate) throws APIException;
 	
 	@APICall
-	public String addToDataSet(int dataSetId, String key, String val) throws APIException;
+	public String addToDataSet(String dataSetId, String key, String val) throws APIException;
 	
 	public void close() throws APIException;
 	
