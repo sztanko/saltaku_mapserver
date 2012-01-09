@@ -7,6 +7,7 @@ import java.util.Map;
 import com.saltaku.api.annotations.API;
 import com.saltaku.api.annotations.APICall;
 import com.saltaku.api.annotations.APIParam;
+import com.saltaku.api.beans.AreaComparison;
 import com.saltaku.api.beans.AreaGeometryData;
 import com.saltaku.api.beans.DataSetInfo;
 import com.saltaku.api.beans.PartitioningType;
@@ -29,7 +30,7 @@ public interface AreaAPI {
 	public List<Area> suggestParents(String areaId) throws APIException;
 	
 	@APICall
-	public List<AreaGeometry> assignChild(String childAreaId, String parentAreaId) throws APIException;
+	public AreaComparison assignChild(String childAreaId, String parentAreaId) throws APIException;
 	
 	public void close() throws APIException;
 	

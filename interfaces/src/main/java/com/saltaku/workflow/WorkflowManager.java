@@ -12,6 +12,6 @@ public void setStatus(String workflowId, WorkflowStatus status);
 public void setProgress(String workflowId, double progress);
 
 public List<String> getLog(String workflowId);
-public Workflow getProcess(String workflowId);
+public Workflow getWorkflow(String workflowId);
 	
 }

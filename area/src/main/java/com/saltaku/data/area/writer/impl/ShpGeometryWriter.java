@@ -21,25 +21,27 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.saltaku.beans.AreaGeometry;
 import com.saltaku.data.area.writer.GeometryWriter;
 import com.saltaku.data.area.writer.GeometryWriterException;
+import com.saltaku.data.area.writer.io.DataStoreProvider;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.OutStream;
 
 public class ShpGeometryWriter implements GeometryWriter {
 private  FeatureWriter<SimpleFeatureType,SimpleFeature> outFeatureWriter;
+private DataStoreProvider dataStoreProvider;
 
+public ShpGeometryWriter(DataStoreProvider dataStoreProvider)
+{
+	this.dataStoreProvider=dataStoreProvider;
+}
 
-	public void init(String id, URL outputPath, CoordinateReferenceSystem cs) throws GeometryWriterException {
+	public void init(String id, CoordinateReferenceSystem cs) throws GeometryWriterException {
 		try{
 		 SimpleFeatureType type=SimpleFeatureTypeBuilder.retype(DataUtilities.createType("Area","area:MultiPolygon,aid:Integer,code:String,name:String"),cs);
-		  ShapefileDataStoreFactory factory = new ShapefileDataStoreFactory();
-		  Map<String, Serializable> create = new HashMap<String, Serializable>();
-		  create.put("url", outputPath);
-		  create.put("create spatial index", Boolean.TRUE);
-		  DataStore outStore;
-		  outStore = factory.createNewDataStore(create);
+		 DataStore outStore; 
+		 outStore=dataStoreProvider.createtDataStore(id);
 		  outStore.createSchema(type);
          outFeatureWriter = outStore.getFeatureWriter(outStore.getTypeNames()[0], Transaction.AUTO_COMMIT);
-         
-		}
+        }
 		 catch (SchemaException e) {
 			throw new GeometryWriterException(e);
 		} catch (IOException e) {
@@ -65,6 +67,7 @@ private  FeatureWriter<SimpleFeatureType,SimpleFeature> outFeatureWriter;
 	public void end() throws GeometryWriterException {
 		   try {
 			outFeatureWriter.close();
+		
 		} catch (IOException e) {
 			throw new GeometryWriterException(e);
 		}

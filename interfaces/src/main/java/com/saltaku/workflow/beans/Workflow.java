@@ -9,5 +9,5 @@ public Date creationDate;
 public Date completionDate;
 public WorkflowStatus status;
 public double progress;
-	
+public String output;
 }
