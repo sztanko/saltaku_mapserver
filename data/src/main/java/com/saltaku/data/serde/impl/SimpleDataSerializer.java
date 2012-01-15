@@ -1,8 +1,10 @@
 package com.saltaku.data.serde.impl;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.saltaku.data.serde.DataSerializer;
 
+@Singleton
 public class SimpleDataSerializer implements DataSerializer {
 	
 	@Inject

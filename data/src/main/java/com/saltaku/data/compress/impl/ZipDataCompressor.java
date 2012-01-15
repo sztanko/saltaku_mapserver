@@ -8,9 +8,10 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.saltaku.data.compress.DataCompressor;
 
-
+@Singleton
 public class ZipDataCompressor implements DataCompressor {
 
 	private int compression;

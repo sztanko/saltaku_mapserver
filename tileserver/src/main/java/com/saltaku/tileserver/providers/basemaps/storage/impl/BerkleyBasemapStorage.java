@@ -94,7 +94,7 @@ public class BerkleyBasemapStorage implements BasemapStorage{
 	}
 
 	public void empty(String shapeId) throws BasemapStorageException {
-	// TODO not implemented
+	// cannot be implemented
 		
 	}
 

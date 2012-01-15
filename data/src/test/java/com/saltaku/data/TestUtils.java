@@ -45,7 +45,6 @@ public class TestUtils {
 				out[i++]=Double.parseDouble(s);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

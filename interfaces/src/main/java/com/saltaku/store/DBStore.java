@@ -47,6 +47,7 @@ public interface DBStore {
 	public int lookupGeoKey(String areaId, String geoKey) throws DBStoreException;
 	
 	public void close() throws DBStoreException;
+	public int[] getMatchingGeometry(String areaId, double x, double y)  throws DBStoreException;
 	
 	
 	

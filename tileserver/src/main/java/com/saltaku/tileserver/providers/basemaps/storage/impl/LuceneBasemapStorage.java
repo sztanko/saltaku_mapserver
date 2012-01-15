@@ -173,8 +173,7 @@ public class LuceneBasemapStorage implements BasemapStorage {
 	}
 
 	public void empty(String shapeId) throws BasemapStorageException {
-		// TODO Auto-generated method stub
-		
+		//not implemented
 	}
 
 }

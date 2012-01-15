@@ -20,6 +20,7 @@ import com.saltaku.area.importer.impl.ShpImporter;
 import com.saltaku.area.importer.propertymapper.PropertyMapper;
 import com.saltaku.area.importer.propertymapper.impl.AttributePropertyMapper;
 
+@Deprecated
 public class AreaModule extends AbstractModule{
 
 	@Override
@@ -45,16 +46,12 @@ public Connection provideConnection()
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
 		return DriverManager.getConnection("jdbc:mysql://localhost:3306/area", "saltaku", "saltaku");
 	} catch (InstantiationException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	} catch (IllegalAccessException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	} catch (ClassNotFoundException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	} catch (SQLException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 	return null;
@@ -66,10 +63,8 @@ public DB provideMongoDB()
 	try {
 		return new Mongo().getDB("area");
 	} catch (UnknownHostException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	} catch (MongoException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 	return null;

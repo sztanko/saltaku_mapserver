@@ -28,6 +28,7 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
+import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSFactory;
@@ -35,9 +36,12 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.saltaku.api.APIException;
 import com.saltaku.api.AreaAPI;
 import com.saltaku.api.beans.AreaComparison;
+import com.saltaku.api.beans.AreaGeometryMapping;
 import com.saltaku.area.relationfinder.RelationFinderException;
 
 import com.saltaku.beans.Area;
@@ -50,7 +54,13 @@ import com.saltaku.geo.GeoProcessor;
 import com.saltaku.store.DBStore;
 import com.saltaku.store.DBStoreException;
 import com.saltaku.workflow.WorkflowManager;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.PrecisionModel;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 public class ShapeAreaProcessor implements GeoProcessor {
@@ -66,16 +76,23 @@ public class ShapeAreaProcessor implements GeoProcessor {
 	private String columnForCode;
 	private String columnForName;
 	private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
+	private GeometryFactory gf;
 	
-	public ShapeAreaProcessor(String workflowId, String targetRef, DBStore store, WorkflowManager wm, GeometryWriter geomWriter,String outputPath) {
+	@Inject
+	public ShapeAreaProcessor(@Named("targetRef") String targetRef, DBStore store, WorkflowManager wm, GeometryWriter geomWriter) {
 		this.targetRef=targetRef;
 		this.dbStore=store;
 		this.wm=wm;
 		this.geomWriter=geomWriter;
-		this.workflowId=workflowId;
+		this.gf=new GeometryFactory();
 	}
 	
-		public String uploadArea(String shpZipData, String name, String source, String columnForCode, String columnForName, String columnForEnglishName)  throws GeoException{
+	public void setWorkflowId(String w)
+	{
+		this.workflowId=w;
+	}
+	
+	public String uploadArea(String shpZipData, String name, String source, String columnForCode, String columnForName, String columnForEnglishName)  throws GeoException{
 try{
 		String inputPath=ShpUtils.unzipShp(shpZipData);
 		
@@ -200,37 +217,82 @@ catch(DBStoreException e){
 	}
 
 	@Override
-		public String getBboxOfData(double[] data, String areaId) throws GeoException {
-			// TODO Auto-generated method stub
-			return null;
+		public String getBboxOfData(int[] data, String areaId) throws GeoException {
+		Geometry envelope=null;
+		WKTReader wktReader = new WKTReader(this.gf);
+		try {
+			AreaGeometry[] geoms=this.dbStore.getAreaGeometry(areaId, data, false);
+			for(AreaGeometry geom: geoms)
+			{
+				
+				Geometry bb=wktReader.read(geom.bb).getEnvelope();
+				if(envelope==null)
+				{
+					envelope=bb;
+				}
+				else
+				{
+					envelope=envelope.union(bb);
+				}
+			}
+		} catch (DBStoreException e) {
+			throw new GeoException(e);
+		} catch (ParseException e) {
+			throw new GeoException(e);
+		}
+		
+			return envelope.getEnvelope().toText();
 		}
 
 	@Override
-		public int getMatchingGeometry(String areaId, double x, double y) throws GeoException {
-			// TODO Auto-generated method stub
-			return 0;
+		public AreaGeometry getMatchingGeometry(String areaId, double x, double y) throws GeoException {
+			try {
+				AreaGeometry[] candidates=this.dbStore.getAreaGeometry(areaId, this.dbStore.getMatchingGeometry(areaId, x,y),true);
+				if(candidates.length==1) return candidates[0]; //if there is only one matching geometry, just return it. Approximate result will be enough
+				WKTReader wktReader = new WKTReader(this.gf);
+				Point p=this.gf.createPoint(new Coordinate(x,y));
+				for(AreaGeometry candidate: candidates)
+				{
+					wktReader.read(candidate.shape);
+					if(wktReader.read(candidate.shape).contains(p))
+						return candidate;
+				}
+			} catch (DBStoreException e) {
+			throw new GeoException(e);
+			} catch (ParseException e) {
+				throw new GeoException(e);
+			}
+			return null;
+
 		}
 
 	@Override
 	public List<Area> suggestChildren(String areaId) throws GeoException {
 			// TODO Auto-generated method stub
+		
 			return null;
 		}
 
 	@Override
 	public List<Area> suggestParents(String areaId) throws GeoException {
-			// TODO Auto-generated method stub
-			return null;
+			try {
+				String[] parents=this.dbStore.getParentAreas(areaId);
+				List<Area> out =new ArrayList<Area>();
+				for(String pareaId: parents)
+					out.add(this.dbStore.getArea(pareaId));
+				return out;
+			} catch (DBStoreException e) {
+				throw new GeoException(e);
+			}
 	}
 
 	@Override
 	public AreaComparison mapAreas(String parentId, String childId) throws GeoException {
 
-		Map<String, Geometry> kmlSet=new HashMap<String, Geometry>();
 		AreaComparison out=new AreaComparison();
 		out.orhpans = new ArrayList<AreaGeometry>();
 		out.matchHistogram=new int[100];
-		
+		out.weakOverlaps=new ArrayList<AreaGeometryMapping>();
 		
 		out.minOverlap=Double.MAX_VALUE;
 		FeatureSource childSource;
@@ -286,7 +348,13 @@ catch(DBStoreException e){
            	 }
             else
             {
-            	//TODO add overlaps
+            	AreaGeometryMapping overlapMapping=new AreaGeometryMapping();
+            	int[] childCodes={childCode};
+            	overlapMapping.child=this.dbStore.getAreaGeometry(childId, childCodes, true)[0];
+            	int[] parentCodes={parentCode};
+            	overlapMapping.parent=this.dbStore.getAreaGeometry(parentId, parentCodes, true)[0];
+            	overlapMapping.overlap=areaq;
+            	out.weakOverlaps.add(overlapMapping);
             }
             
             }
@@ -303,7 +371,6 @@ catch(DBStoreException e){
             	  out.matchHistogram[(int)Math.floor(maxArea)]++;
             	  if(maxArea<out.minOverlap) out.minOverlap=maxArea;
             }
-            //ff.contains(arg0, g.toText());
             if(orphanIds.size()>0){
             int[] orphans=new int[orphanIds.size()];
             out.orhpans=new ArrayList<AreaGeometry>();
@@ -350,7 +417,7 @@ catch(DBStoreException e){
 		    			minY,
 		    			maxX,
 		    			maxY,
-		    			targetCRS.toString());// TODO I am worried about this a little bit
+		    			targetCRS.toString());
 		    		//"THE_GEOM", env);
 		    return source.getFeatures(filter);
 			

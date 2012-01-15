@@ -21,7 +21,6 @@ public class MySqlDbStore implements DbStore {
 		 try {
 			this.conn.setAutoCommit(false);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

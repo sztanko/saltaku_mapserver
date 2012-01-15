@@ -236,7 +236,6 @@ public class CompareDataUtilsTest {
 		try {
 			return (serde.deserialize(FileUtils.readFileToByteArray(new File(path))));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -247,7 +246,6 @@ public class CompareDataUtilsTest {
 		try {
 			FileUtils.writeByteArrayToFile(new File(path), serde.serialize((data)));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

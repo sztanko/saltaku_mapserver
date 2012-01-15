@@ -52,7 +52,6 @@ public class DefaultTestModule  extends AbstractModule{
 		try {
 			bind(TileUtils.class).toInstance(new TileUtils(new ReferencingObjectFactory().createFromWKT(wgs) ));
 		} catch (FactoryException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		//bind(BasemapStorage.class).to(LuceneBasemapStorage.class).in(Singleton.class);

@@ -3,7 +3,7 @@ package com.saltaku.area.importer.beans;
 import com.saltaku.area.importer.propertymapper.AreaFeatures;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
-
+@Deprecated
 public class AreaShape {
 	private String areaId;
 private Geometry shape;

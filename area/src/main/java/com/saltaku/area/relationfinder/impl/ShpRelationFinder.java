@@ -24,11 +24,10 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.saltaku.area.relationfinder.RelationFinder;
 import com.saltaku.area.relationfinder.RelationFinderException;
-import com.saltaku.kml.KMLRenderer;
-import com.saltaku.kml.impl.DefaultKMLRenderer;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
+@Deprecated
 public class ShpRelationFinder implements RelationFinder {
 
 	String columnForCode="aid";
@@ -169,7 +168,7 @@ public class ShpRelationFinder implements RelationFinder {
 		    			minY,
 		    			maxX,
 		    			maxY,
-		    			targetCRS.toString());// TODO I am worried about this a little bit
+		    			targetCRS.toString());
 		    		//"THE_GEOM", env);
 		    return source.getFeatures(filter);
 			

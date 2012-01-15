@@ -151,8 +151,7 @@ String wgs="GEOGCS[\"WGS84\", DATUM[\"WGS84\", SPHEROID[\"WGS84\", 6378137.0, 29
 			
 				try {
 					provider.getBasemapForTile("lsoa", t.x, t.y, t.z);
-				} catch (BasemapProviderException e) {
-					// TODO Auto-generated catch block
+				} catch (BasemapProviderException e) { 
 					e.printStackTrace();
 				}
 			

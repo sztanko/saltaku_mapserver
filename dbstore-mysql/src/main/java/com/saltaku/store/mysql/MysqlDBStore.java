@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import javax.inject.Singleton;
+
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.google.inject.Inject;
@@ -32,6 +34,7 @@ DbConnectionManager connManager;
 DataSerializer serde;
 DataCompressor compressor;
 
+@Singleton
 @Inject
 public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompressor compressor) throws DBStoreException{
 	this.connManager=mng;
@@ -72,6 +75,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 
 	public AreaGeometry[] getAreaGeometry(String areaId, int[] ids, boolean fetchGeometry) throws DBStoreException {
 		Connection conn = null;
+		if(ids==null || ids.length==0) return new AreaGeometry[0];
 		PreparedStatement  stm = null;
 		try {
 			conn=connManager.getConnection();
@@ -661,4 +665,41 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
             if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
         }
 		}
+/*
+ * (non-Javadoc)
+ * @see com.saltaku.store.DBStore#getMatchingGeometry(java.lang.String, double, double)
+ * SET @center=GeomFromText('Point(-0.114928  51.578234)');
+SELECT geom_id FROM `area_geom` where contains(bb,GeomFromText(?))
+SELECT area_id, geom_id, area_code, name,asText(centroid) as cntr, contains(shape,@center ) bbb, contains(bb,@center) shp, SQRT(POW(  X(centroid) - X(@center), 2) + POW( Y(centroid) - Y(@center),2))*1000 as distance FROM `area_geom` ORDER BY `distance` ASC
+ */
+
+	public int[] getMatchingGeometry(String areaId, double x, double y) throws DBStoreException {
+		String pointWKT="Point("+x+" "+y+")";
+		String q="SELECT geom_id FROM `area_geom` where contains(bb,GeomFromText(?)) and area_Id=?";
+		Connection conn = null;
+		PreparedStatement  stm = null;
+		try {
+			conn=connManager.getConnection();
+			stm = conn.prepareStatement(q);
+			stm.setString(1, pointWKT);
+			stm.setString(2, areaId);
+			List<Integer> outList=new ArrayList<Integer>();
+			ResultSet rs=stm.executeQuery();
+			
+			while(rs.next())
+			{
+				outList.add(rs.getInt("geom_id"));
+			}
+			int[] out=new int[outList.size()];
+			int i=0;
+			for(int id: outList) out[i++]=id;
+			return out;
+		} catch (SQLException e) {
+			throw new DBStoreException(e);
+		}
+		finally {
+            if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+        }
+	}
 }

@@ -21,6 +21,8 @@ import com.google.inject.name.Named;
 import com.saltaku.tileserver.providers.feature.FeatureProvider;
 import com.saltaku.tileserver.providers.feature.FeatureProviderException;
 
+
+//TODO review and thing about moving it to area
 public class ShapeFileFeatureProvider implements FeatureProvider {
 	private String path;
 	private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
@@ -45,7 +47,7 @@ public class ShapeFileFeatureProvider implements FeatureProvider {
 		    			env.getMinimum(1),
 		    			env.getMaximum(0),
 		    			env.getMaximum(1),
-		    			targetCRS.toString());// TODO I am worried about this a little bit
+		    			targetCRS.toString());
 		    		//"THE_GEOM", env);
 		    return source.getFeatures(filter);
 			
@@ -85,6 +87,8 @@ public class ShapeFileFeatureProvider implements FeatureProvider {
 	
 	protected FeatureSource loadShapeFile(String shapeId) throws IOException
 	{
+	
+		//TODO rewrite using area datastore
 		File file = new File(path+"/"+shapeId,"data.shp");
 		Map map = new HashMap();
 		map.put("url", file.toURI().toURL());

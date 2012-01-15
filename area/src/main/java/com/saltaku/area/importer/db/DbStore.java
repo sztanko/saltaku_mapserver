@@ -2,7 +2,7 @@ package com.saltaku.area.importer.db;
 
 import com.saltaku.area.importer.beans.AreaShape;
 import com.vividsolutions.jts.geom.Geometry;
-
+@Deprecated
 public interface DbStore {
 
 	public String insertArea(String name, String source) throws DbStoreException; 

@@ -13,6 +13,8 @@ import com.saltaku.area.importer.exceptions.ImportException;
 import com.saltaku.area.importer.propertymapper.PropertyMapper;
 import com.saltaku.area.importer.store.geometry.GeometryWriter;
 
+@Deprecated
 public interface Importer {
+	@Deprecated
 	void exec(URL inputPath, String outputPath,PropertyMapper pMapper, GeometryWriter writer) throws ImportException;
 }

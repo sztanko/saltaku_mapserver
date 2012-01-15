@@ -1,5 +1,5 @@
 package com.saltaku.area.importer.propertymapper;
-
+@Deprecated
 public class AreaFeatures {
 private int id;
 private String code;
