@@ -17,35 +17,42 @@ import com.saltaku.data.area.writer.GeometryWriterException;
 import com.saltaku.data.area.writer.io.DataStoreProvider;
 
 public class LocalFSDataStoreProvider implements DataStoreProvider {
-private String fsLocation;
-	
-@Inject
-public LocalFSDataStoreProvider(@Named("path.shapefiles") String fs)
-{
-	this.fsLocation=fs;
-}
+	private String fsLocation;
+
+	@Inject
+	public LocalFSDataStoreProvider(@Named("path.shapefiles") String fs) {
+		this.fsLocation = fs;
+	}
+
 	@Override
-	public DataStore createDataStore(String id) throws GeometryWriterException{
+	public DataStore createDataStore(String id) throws GeometryWriterException {
 		try {
-		ShapefileDataStoreFactory factory = new ShapefileDataStoreFactory();
-		  Map<String, Serializable> create = new HashMap<String, Serializable>();
-		  File file=new File(fsLocation+"/"+id,"data.shp");
-		  create.put("url", file.toURI().toURL());
-		  create.put("create spatial index", Boolean.TRUE);
-		  return factory.createNewDataStore(create);
+			ShapefileDataStoreFactory factory = new ShapefileDataStoreFactory();
+			Map<String, Serializable> create = new HashMap<String, Serializable>();
+			File dir = new File(fsLocation + "/" + id);
+			if (!dir.exists())
+				dir.mkdirs();
+			File file = new File(fsLocation + "/" + id, "data.shp");
+			create.put("url", file.toURI().toURL());
+			create.put("create spatial index", Boolean.TRUE);
+			return factory.createNewDataStore(create);
 		} catch (IOException e) {
 			throw new GeometryWriterException(e);
 		}
-		
+
 	}
 
 	@Override
 	public DataStore getDataStore(String id) throws GeometryWriterException {
 		try {
-		File file=new File(fsLocation+"/"+id,"data.shp");
-		Map map = new HashMap();
-		map.put("url", file.toURI().toURL());
-			return DataStoreFinder.getDataStore( map );
+			File dir = new File(fsLocation + "/" + id);
+			if (!dir.exists())
+				dir.mkdirs();
+			File file = new File(fsLocation + "/" + id, "data.shp");
+
+			Map map = new HashMap();
+			map.put("url", file.toURI().toURL());
+			return DataStoreFinder.getDataStore(map);
 		} catch (IOException e) {
 			throw new GeometryWriterException(e);
 		}

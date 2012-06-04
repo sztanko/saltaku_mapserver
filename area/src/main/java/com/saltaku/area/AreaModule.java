@@ -20,7 +20,7 @@ import com.saltaku.area.importer.impl.ShpImporter;
 import com.saltaku.area.importer.propertymapper.PropertyMapper;
 import com.saltaku.area.importer.propertymapper.impl.AttributePropertyMapper;
 
-@Deprecated
+
 public class AreaModule extends AbstractModule{
 
 	@Override

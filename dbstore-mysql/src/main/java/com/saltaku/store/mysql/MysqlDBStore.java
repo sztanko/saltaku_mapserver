@@ -48,13 +48,12 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		PreparedStatement  stm = null;
 		try {
 			conn=connManager.getConnection();
-			stm = conn.prepareStatement("select dataset_id, area_id, asText( ENVELOPE( bb ) ) as bb, aggregation, data from dataset_data where dataset_id=? and area_id=? and aggregation=? limit 1");
+			stm = conn.prepareStatement("select dataset_id, area_id, asText( ENVELOPE( bbox ) ) as bb, aggregation, data from dataset_data where dataset_id=? and area_id=? and aggregation=? limit 1");
 			stm.setString(1, datasetId);
 			stm.setString(2, areaId);
 			stm.setString(3, aggregation);
-		
-			ResultSet rs=stm.executeQuery();
 			DataSetData data=new DataSetData();
+			ResultSet rs=stm.executeQuery();
 			while(rs.next())
 			{
 				data.dataSet=rs.getString("dataset_id");
@@ -69,7 +68,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -108,7 +107,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -139,7 +138,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -170,7 +169,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -200,7 +199,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -233,7 +232,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -266,7 +265,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 	
@@ -308,7 +307,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -340,7 +339,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -367,7 +366,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -390,14 +389,18 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 	
 	
 
 	public String generateId(String ds) throws DBStoreException {
-		return UUID.randomUUID().toString();
+		long l=UUID.randomUUID().getMostSignificantBits();
+		if(l>0)
+			return Long.toString(l);
+		else
+			return Long.toString(-l);
 	}
 
 
@@ -420,7 +423,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -447,7 +450,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -475,7 +478,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 		
 	}
@@ -499,7 +502,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 		
 	}
@@ -542,7 +545,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 			}
 			finally {
 	            if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-	            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+	            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
 	        }
 		
 		
@@ -569,7 +572,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
@@ -595,10 +598,45 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 
+
+	public void insertAreaMapping(String childAreaId, String parentAreaId, int[] mapping) throws DBStoreException{
+		Connection conn = null;
+		PreparedStatement  stm = null;
+		try {
+			conn=connManager.getConnection();
+			stm = conn.prepareStatement("insert into area_mappings (child_area_id, parent_area_id,mapping) values (?,?,?)");
+			stm.setString(1, childAreaId);
+			stm.setString(2, parentAreaId);
+			stm.setBytes(3, compressor.compress(serde.serialize(mapping)));
+			stm.executeUpdate();
+			stm.close();
+			System.out.println("Batch Inserting "+mapping.length+" mappings");
+			stm = conn.prepareStatement("insert into area_geom_mappings (child_area_id, child_geom_id, parent_area_id,parent_geom_id,overlap) values (?,?,?,?,?)");
+			for(int i=0;i<mapping.length;i++)
+			{
+				stm.setString(1, childAreaId);
+				stm.setInt(2,i+1);
+				stm.setString(3, parentAreaId);
+				stm.setInt(4, mapping[i]);
+				stm.setDouble(5,100.0);
+				stm.addBatch();
+			}
+			stm.executeBatch();
+			System.out.println("Batch Inserting "+mapping.length+" mappings done");
+			
+		} catch (SQLException e) {
+			throw new DBStoreException(e);
+		}
+		finally {
+            if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
+        }
+	}
+	
 	
 	public void close() throws DBStoreException {
 		connManager.close();
@@ -631,7 +669,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 		
 	}
@@ -642,7 +680,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		PreparedStatement  stm = null;
 		try {
 			conn=connManager.getConnection();
-			String q="INSERT INTO `area_geom` (`area_id`, `geom_id`, `area_code`, `name`, `english_name`, `area`, `centroid`, `shape`, `simple_shape`, `bb`, `insertTime`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+			String q="INSERT INTO `area_geom` (`area_id`, `geom_id`, `area_code`, `name`, `english_name`, `area`, `centroid`, `shape`, `simple_shape`, `bb`, `insertTime`) VALUES (?, ?, ?, ?, ?, ?, GeomFromText(?),GeomFromText(?), GeomFromText(?), GeomFromText(?), ?);";
 			stm = conn.prepareStatement(q);
 			stm.setString(1,geom.areaId);
 			stm.setInt(2,geom.id);
@@ -652,17 +690,20 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 			stm.setDouble(6, geom.area);
 			stm.setString(7, geom.centroid);
 			stm.setString(8, geom.shape);
+			//System.out.println(geom.shape);
 			stm.setString(9, geom.simple_shape);
 			stm.setString(10, geom.bb);
 			stm.setDate(11, new java.sql.Date(geom.insertTime.getTime()));
 			stm.executeUpdate();
+			
+			//conn.nativeSQL(sql)
 			
 		} catch (SQLException e) {
 			throw new DBStoreException(e);
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 		}
 /*
@@ -699,7 +740,7 @@ SELECT area_id, geom_id, area_code, name,asText(centroid) as cntr, contains(shap
 		}
 		finally {
             if (stm != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
-            if (conn != null) try { stm.close(); } catch (SQLException logOrIgnore) {}
+            if (conn != null) try { conn.close(); } catch (SQLException logOrIgnore) {}
         }
 	}
 }

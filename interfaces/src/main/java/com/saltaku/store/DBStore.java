@@ -43,6 +43,7 @@ public interface DBStore {
 	
 	public void insertArea(Area area) throws DBStoreException;
 	public void insertAreaGeometry(AreaGeometry geom) throws DBStoreException;
+	public void insertAreaMapping(String childAreaId, String parentAreaId, int[] mapping) throws DBStoreException;
 	
 	public int lookupGeoKey(String areaId, String geoKey) throws DBStoreException;
 	

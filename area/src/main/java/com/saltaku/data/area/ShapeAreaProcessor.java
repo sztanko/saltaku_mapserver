@@ -28,7 +28,6 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
-import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSFactory;
@@ -38,11 +37,8 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.saltaku.api.APIException;
-import com.saltaku.api.AreaAPI;
 import com.saltaku.api.beans.AreaComparison;
 import com.saltaku.api.beans.AreaGeometryMapping;
-import com.saltaku.area.relationfinder.RelationFinderException;
 
 import com.saltaku.beans.Area;
 import com.saltaku.beans.AreaGeometry;
@@ -129,8 +125,8 @@ try{
           FeatureIterator fIterator=inResults.features();
           int geomId=1;
           while (fIterator.hasNext()) {
-              Feature inFeature = fIterator.next();
-              
+        	  Feature inFeature = fIterator.next();
+                           
               GeometryAttribute ga = inFeature.getDefaultGeometryProperty();
               Geometry g=(Geometry)ga.getValue();
               
@@ -152,8 +148,7 @@ try{
       				f.english_name= p.getValue().toString();
       			}
       		}
-      		
-      		  f.id=geomId;
+              f.id=geomId;
               Geometry g2=JTS.transform(g, transform);
               
               
@@ -178,11 +173,10 @@ try{
               if(geometryCount%100==0)
             	  wm.addEntry(this.workflowId,"shape #"+geometryCount);
               f.centroid=g2.getCentroid().toText();
-              
+              //System.out.println("Before insert "+geomId);
               
               dbStore.insertAreaGeometry(f);
               geomWriter.writeFeature(g2, f);
-              
               geomId++;
               }
           fIterator.close();

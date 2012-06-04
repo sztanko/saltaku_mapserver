@@ -32,6 +32,9 @@ public class AreaGeometry {
 	public String simple_shape;
 	public String bb;
 	public Date insertTime;
+	public AreaGeometry() {
+		this.insertTime=new Date();
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -110,6 +113,32 @@ public class AreaGeometry {
 		} else if (!simple_shape.equals(other.simple_shape))
 			return false;
 		return true;
+	}
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("AreaGeometry [id=").append(id).append(",\n ");
+		if (areaId != null)
+			builder.append("areaId=").append(areaId).append(",\n ");
+		if (area_code != null)
+			builder.append("area_code=").append(area_code).append(",\n ");
+		if (name != null)
+			builder.append("name=").append(name).append(",\n ");
+		if (english_name != null)
+			builder.append("english_name=").append(english_name).append(",\n ");
+		builder.append("area=").append(area).append(",\n ");
+		if (centroid != null)
+			builder.append("centroid=").append(centroid).append(",\n ");
+		if (shape != null)
+			builder.append("shape=").append(shape).append(",\n ");
+		if (simple_shape != null)
+			builder.append("simple_shape=").append(simple_shape).append(",\n ");
+		if (bb != null)
+			builder.append("bb=").append(bb).append(",\n ");
+		if (insertTime != null)
+			builder.append("insertTime=").append(insertTime);
+		builder.append("]");
+		return builder.toString();
 	}
 	
 	

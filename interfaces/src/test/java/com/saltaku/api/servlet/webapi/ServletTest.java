@@ -24,10 +24,10 @@ public class ServletTest {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         server.setHandler(context);
-        WebAPIServlets.addToContext(context, new TestWebAPI());
-        server.start();
+        //WebAPIServlets.addToContext(context, new TestWebAPI());
+       // server.start();
         
-        server.join();
+      //  server.join();
        
 	}
 	

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+import org.junit.Test;
+
 import com.saltaku.api.APIException;
 import com.saltaku.api.WebAPI;
 import com.saltaku.api.beans.AreaGeometryData;
@@ -242,7 +244,11 @@ public class TestWebAPI implements WebAPI {
 		areaGeometry.areaId=areaId;
 		return areaGeometry;
 	}
-
+@Test
+	public void testtest()
+	{
+		
+	}
 	public void close() throws APIException {
 
 

@@ -7,7 +7,9 @@ import java.net.URL;
 
 import org.junit.Test;
 
-import com.saltaku.area.relationfinder.impl.ShpRelationFinder;
+import com.saltaku.data.area.relationfinder.RelationFinder;
+import com.saltaku.data.area.relationfinder.RelationFinderException;
+import com.saltaku.data.area.relationfinder.impl.ShpRelationFinder;
 
 public class RelationFinderTest {
 	

@@ -41,6 +41,7 @@ String url, user, password;
 		
 		bind(DBStore.class).to(MysqlDBStore.class);
 		bind(WorkflowManager.class).to(MysqlWorkflowManager.class);
+		//bind(WorkflowManager.class).to(MysqlWorkflowManager.class);
 		
 		//("com.mysql.jdbc.Driver", url, user, password));
 		
