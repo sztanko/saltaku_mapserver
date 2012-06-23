@@ -3,6 +3,7 @@ package com.saltaku.data.area.writer.io.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,9 +46,9 @@ public class LocalFSDataStoreProvider implements DataStoreProvider {
 	@Override
 	public DataStore getDataStore(String id) throws GeometryWriterException {
 		try {
-			File dir = new File(fsLocation + "/" + id);
+			/*File dir = new File(fsLocation + "/" + id);
 			if (!dir.exists())
-				dir.mkdirs();
+				dir.mkdirs();*/
 			File file = new File(fsLocation + "/" + id, "data.shp");
 
 			Map map = new HashMap();
@@ -57,5 +58,15 @@ public class LocalFSDataStoreProvider implements DataStoreProvider {
 			throw new GeometryWriterException(e);
 		}
 	}
-
+	
+	@Override
+	public URL getDataStoreURL(String id){
+		try {
+			return new URL("file://"+fsLocation + "/" + id+"/data.shp");
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		}
+	
 }

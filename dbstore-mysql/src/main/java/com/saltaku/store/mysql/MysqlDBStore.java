@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 import javax.inject.Singleton;
 
+import org.geotools.coverage.grid.io.imageio.geotiff.GeoKeyEntry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.google.inject.Inject;
@@ -24,15 +26,18 @@ import com.saltaku.beans.DataSetData;
 import com.saltaku.beans.DataSource;
 import com.saltaku.beans.DataSourceDataSet;
 import com.saltaku.beans.Tag;
+import com.saltaku.beans.relationfinder.DatasetRelation;
 import com.saltaku.data.compress.DataCompressor;
 import com.saltaku.data.serde.DataSerializer;
 import com.saltaku.store.DBStore;
 import com.saltaku.store.DBStoreException;
+import com.saltaku.store.mysql.cache.MemoryCacheStore;
 
 public class MysqlDBStore implements DBStore {
 DbConnectionManager connManager;
 DataSerializer serde;
 DataCompressor compressor;
+MemoryCacheStore cache;
 
 @Singleton
 @Inject
@@ -40,6 +45,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 	this.connManager=mng;
 	this.serde=serde;
 	this.compressor=compressor;
+	this.cache=new MemoryCacheStore();
 	}
 
 	
@@ -92,7 +98,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 				ag.area_code =rs.getString("area_code");
 				ag.name =rs.getString("name");
 				ag.area=rs.getDouble("area");
-				ag.centroid=rs.getString("ctr");
+				ag.centroid=rs.getString("cntr");
 				ag.bb=rs.getString("bb");
 				ag.insertTime=rs.getDate("insertTime");
 				if(fetchGeometry)
@@ -101,7 +107,9 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 				}
 				out.add(ag);
 			}
-		return (AreaGeometry[])out.toArray();
+			AreaGeometry[] outA=new AreaGeometry[out.size()];
+			for(int i=0;i<outA.length;i++) outA[i]=out.get(i);
+		return outA;
 		} catch (SQLException e) {
 			throw new DBStoreException(e);
 		}
@@ -128,6 +136,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 				data.name=rs.getString("name");
 				data.start=rs.getDate("date_validity_start");
 				data.end=rs.getDate("date_validity_end");
+				data.size=rs.getInt("size");
 				data.initialAreaId=rs.getString("area_id");
 				data.initialAggregation=rs.getString("aggregation");
 				
@@ -147,7 +156,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		PreparedStatement  stm = null;
 		try {
 			conn=connManager.getConnection();
-			String q="select data_id,data_type,  tag_name, tag_value from tags where dataset_id=? and data_type=? order by tag_name";
+			String q="select data_id,data_type,  tag_name, tag_value from tags where data_id=? and data_type=? order by tag_name";
 			stm = conn.prepareStatement(q);
 			stm.setString(1, id);
 			stm.setString(2, type);
@@ -163,7 +172,9 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 				
 				out.add(tag);
 			}
-		return (Tag[])out.toArray();
+		Tag[] outA=new Tag[out.size()];
+		for (int i =0; i<out.size();i++) outA[i]=out.get(i);
+		return outA;
 		} catch (SQLException e) {
 			throw new DBStoreException(e);
 		}
@@ -193,7 +204,11 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 				ddata.data=serde.deserialize(compressor.decompress(rs.getBytes("data")));
 				out.add(ddata);
 			}
-		return (DataSetData[])out.toArray();
+			//System.out.println("Retrieved "+out.size()+" items");
+			DataSetData[] outD=new DataSetData[out.size()];
+			for(int i=0;i<out.size();i++) 
+				outD[i]=out.get(i);
+		return outD;
 		} catch (SQLException e) {
 			throw new DBStoreException(e);
 		}
@@ -217,6 +232,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 			{
 				area.id=rs.getString("area_id");
 				area.parentId=rs.getString("parent_id");
+				area.name=rs.getString("name");
 				area.source=rs.getString("source");
 				area.bbox=rs.getString("bbox");
 				area.centroid=rs.getString("centroid");
@@ -356,9 +372,10 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 			stm.setString(3, source.name);
 			stm.setDate(4, new java.sql.Date(source.start.getTime()));
 			stm.setDate(5, new java.sql.Date(source.end.getTime()));
-			stm.setString(6, source.initialAreaId);
-			stm.setString(7, source.initialAggregation);
-			stm.setString(8, source.bbox);
+			stm.setInt(6, source.size);
+			stm.setString(7, source.initialAreaId);
+			stm.setString(8, source.initialAggregation);
+			stm.setString(9, source.bbox);
 				stm.executeUpdate();
 			return "ok";
 		} catch (SQLException e) {
@@ -381,7 +398,8 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 			stm.setString(1,source.dataSet);
 			stm.setString(2,source.areaId);
 			stm.setString(3, source.bbox);
-			stm.setBytes(4, compressor.compress(serde.serialize(source.data)));
+			stm.setString(4, source.aggregation);
+			stm.setBytes(5, compressor.compress(serde.serialize(source.data)));
 				stm.executeUpdate();
 			return "ok";
 		} catch (SQLException e) {
@@ -410,7 +428,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 		try {
 			conn=connManager.getConnection();
 			String q="INSERT INTO  `datasource_datasets` (`datasource_id` ,`column` ,`name`,`data`)"+
-			"VALUES (?,?,GeomFromText(?),?,?);";
+			"VALUES (?,?,?,?);";
 			stm = conn.prepareStatement(q);
 			stm.setString(1,source.datasourceId);
 			stm.setInt(2,source.column);
@@ -428,23 +446,40 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 	}
 
 	public int lookupGeoKey(String areaId, String geoKey) throws DBStoreException {
+		//TODO this is a little hack. Rethink it and make concurrent safe
+		if(!this.cache.hasGeometryGorArea(areaId))
+		{
+			this.cache.setAreaGeometryCache(areaId, this.loadAllAreaGeometries(areaId));
+		}
+		AreaGeometry ag=this.cache.lookupAreaGeometry(areaId, geoKey);
+		if(ag!=null) 		return ag.id;
+		else return -1;
+	}
+	
+	private synchronized Map<String,AreaGeometry> loadAllAreaGeometries(String areaId) throws DBStoreException
+	{
+		Map<String,AreaGeometry> out=new HashMap<String, AreaGeometry>();
 		Connection conn = null;
 		PreparedStatement  stm = null;
 		try {
 			conn=connManager.getConnection();
-			String q="select geom_id from area_geom where area_id=? and (code=? or name=? or english_name=?) limit 1";
+			String q="select geom_id, area_id, area_code, name, english_name, area, AsText(centroid) as cntr, AsText(envelope(bb)) as bb from area_geom where area_id=? ";
 			stm = conn.prepareStatement(q);
 			stm.setString(1, areaId);
-			stm.setString(2, geoKey);
-			stm.setString(3, geoKey);
-			stm.setString(4, geoKey);
 			ResultSet rs=stm.executeQuery();
-			int result=-1;
 			while(rs.next())
 			{
-				result=rs.getInt("geom_id");
+				AreaGeometry ag=new AreaGeometry();
+				ag.id =rs.getInt("geom_id");
+				ag.areaId =rs.getString("area_id");
+				ag.area_code =rs.getString("area_code");
+				ag.name =rs.getString("name");
+				ag.area=rs.getDouble("area");
+				ag.centroid=rs.getString("cntr");
+				ag.bb=rs.getString("bb");
+				out.put(ag.area_code, ag);
 			}
-		return result;
+		return out;
 		} catch (SQLException e) {
 			throw new DBStoreException(e);
 		}
@@ -603,7 +638,7 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 	}
 
 
-	public void insertAreaMapping(String childAreaId, String parentAreaId, int[] mapping) throws DBStoreException{
+	public void insertAreaMapping(String childAreaId, String parentAreaId, DatasetRelation mapping) throws DBStoreException{
 		Connection conn = null;
 		PreparedStatement  stm = null;
 		try {
@@ -611,22 +646,22 @@ public MysqlDBStore(DbConnectionManager mng,  DataSerializer serde, DataCompress
 			stm = conn.prepareStatement("insert into area_mappings (child_area_id, parent_area_id,mapping) values (?,?,?)");
 			stm.setString(1, childAreaId);
 			stm.setString(2, parentAreaId);
-			stm.setBytes(3, compressor.compress(serde.serialize(mapping)));
+			stm.setBytes(3, compressor.compress(serde.serialize(mapping.relations)));
 			stm.executeUpdate();
 			stm.close();
-			System.out.println("Batch Inserting "+mapping.length+" mappings");
+			System.out.println("Batch Inserting "+mapping.relations.length+" mappings");
 			stm = conn.prepareStatement("insert into area_geom_mappings (child_area_id, child_geom_id, parent_area_id,parent_geom_id,overlap) values (?,?,?,?,?)");
-			for(int i=0;i<mapping.length;i++)
+			for(int i=0;i<mapping.relations.length;i++)
 			{
 				stm.setString(1, childAreaId);
-				stm.setInt(2,i+1);
+				stm.setInt(2,i);
 				stm.setString(3, parentAreaId);
-				stm.setInt(4, mapping[i]);
-				stm.setDouble(5,100.0);
+				stm.setInt(4, mapping.relations[i]);
+				stm.setDouble(5,mapping.overlaps[i]);
 				stm.addBatch();
 			}
 			stm.executeBatch();
-			System.out.println("Batch Inserting "+mapping.length+" mappings done");
+			System.out.println("Batch Inserting "+mapping.relations.length+" mappings done");
 			
 		} catch (SQLException e) {
 			throw new DBStoreException(e);

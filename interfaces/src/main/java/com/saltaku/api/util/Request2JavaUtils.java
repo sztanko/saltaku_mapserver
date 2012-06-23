@@ -4,12 +4,15 @@ import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -67,7 +70,7 @@ public static Date parseDate(String date) throws ParseException
 
 public static Gson buildGson()
 {
-	 return new GsonBuilder().registerTypeAdapter(String.class, new StringSerializer()).create();
+	return new GsonBuilder().registerTypeAdapter(String.class, new StringSerializer()).serializeSpecialFloatingPointValues().serializeNulls().registerTypeAdapter(double[].class, new DoubleArraySerializer()).create();
 }
 
 	
@@ -77,6 +80,14 @@ static public class StringSerializer implements JsonSerializer<String> {
 		if(src.length()<STRING_MAX_LENGTH) return new JsonPrimitive(src);
 		else
 		return new JsonPrimitive(src.substring(0,STRING_MAX_LENGTH)+"... element is too long ("+src.length()+")");
+	}
+	  
+}
+
+static public class DoubleArraySerializer implements JsonSerializer<double[]> {
+
+	public JsonElement serialize(double[] src, Type typeOfSrc, JsonSerializationContext context) {
+		return new JsonPrimitive(Arrays.toString(src).replace("-Infinity", "-"));
 	}
 	  
 }

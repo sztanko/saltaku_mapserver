@@ -11,6 +11,7 @@ import com.saltaku.beans.DataSetData;
 import com.saltaku.beans.DataSource;
 import com.saltaku.beans.DataSourceDataSet;
 import com.saltaku.beans.Tag;
+import com.saltaku.beans.relationfinder.DatasetRelation;
 
 
 public interface DBStore {
@@ -43,7 +44,7 @@ public interface DBStore {
 	
 	public void insertArea(Area area) throws DBStoreException;
 	public void insertAreaGeometry(AreaGeometry geom) throws DBStoreException;
-	public void insertAreaMapping(String childAreaId, String parentAreaId, int[] mapping) throws DBStoreException;
+	public void insertAreaMapping(String childAreaId, String parentAreaId, DatasetRelation rel) throws DBStoreException;
 	
 	public int lookupGeoKey(String areaId, String geoKey) throws DBStoreException;
 	

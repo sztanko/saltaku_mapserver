@@ -25,16 +25,19 @@ public class DataSet {
 	public String initialAreaId;
 	public String initialAggregation;
 	public String bbox;
+	public int size;
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((bbox == null) ? 0 : bbox.hashCode());
 		result = prime * result + ((dataSourceId == null) ? 0 : dataSourceId.hashCode());
 		result = prime * result + ((end == null) ? 0 : end.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((initialAggregation == null) ? 0 : initialAggregation.hashCode());
 		result = prime * result + ((initialAreaId == null) ? 0 : initialAreaId.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + size;
 		result = prime * result + ((start == null) ? 0 : start.hashCode());
 		return result;
 	}
@@ -47,6 +50,11 @@ public class DataSet {
 		if (getClass() != obj.getClass())
 			return false;
 		DataSet other = (DataSet) obj;
+		if (bbox == null) {
+			if (other.bbox != null)
+				return false;
+		} else if (!bbox.equals(other.bbox))
+			return false;
 		if (dataSourceId == null) {
 			if (other.dataSourceId != null)
 				return false;
@@ -77,6 +85,8 @@ public class DataSet {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
+		if (size != other.size)
+			return false;
 		if (start == null) {
 			if (other.start != null)
 				return false;
@@ -84,4 +94,6 @@ public class DataSet {
 			return false;
 		return true;
 	}
+	
+	
 }

@@ -52,14 +52,15 @@ public class SimpleWebAPI implements WebAPI{
 		
 		double[][] map = AggregateDataUtils.remap(dsData.data, partitions);
 		
-		partitionsData=new Map[partitions.length];
-		for(int i=0;i<partitions.length;i++) partitionsData[i]=new HashMap<String, Double>();
+		partitionsData=new Map[numPartitions];
+		for(int i=0;i<numPartitions;i++) partitionsData[i]=new HashMap<String, Double>();
 		for(Aggregator agg: AggregateDataUtils.availableAggregators){
 			double[] aggregates=AggregateDataUtils.aggregate(map, agg);
 			String aggName=agg.getName();
-			for(int i=0;i<partitions.length;i++)
+			for(int i=0;i<partitionsData.length;i++)
 			{
-				partitionsData[i].put(aggName, aggregates[i]);
+				if(aggregates[i+1]!=Double.NEGATIVE_INFINITY)
+					partitionsData[i].put(aggName, aggregates[i+1]);
 			}
 		}
 		}
@@ -83,12 +84,12 @@ public class SimpleWebAPI implements WebAPI{
 			partitions=CompareDataUtils.partitionDataByValues(numPartitions, dsData1.data, dsData2.data);
 		}
 		
-		Map<String,Double>[][][] partitionsData=new Map[partitions.length][partitions.length][2];
+		Map<String,Double>[][][] partitionsData=new Map[numPartitions][numPartitions][2];
 		double[][][][] map = AggregateDataUtils.remap( dsData1.data, dsData2.data, partitions);
-		for(int ic=0;ic<partitions.length;ic++)
+		for(int ic=0;ic<numPartitions;ic++)
 		{
 		
-		for(int i=0;i<partitions.length;i++){ 
+		for(int i=0;i<numPartitions;i++){ 
 			partitionsData[ic][i][0]=new HashMap<String, Double>(); 
 			partitionsData[ic][i][1]=new HashMap<String, Double>();
 			}
@@ -96,15 +97,19 @@ public class SimpleWebAPI implements WebAPI{
 		for(Aggregator agg: AggregateDataUtils.availableAggregators){
 			String aggName=agg.getName();
 			
-			double[] aggregates=AggregateDataUtils.aggregate(map[ic][0], agg);
-			for(int i=0;i<partitions.length;i++)
+			//double[] aggregates=AggregateDataUtils.aggregate(map[ic][0], agg);
+			for(int i=0;i<numPartitions;i++)
 			{
-				partitionsData[ic][i][0].put(aggName, aggregates[i]);
+				double a=AggregateDataUtils.aggregateSafe(map[ic+1][i+1][0],agg);
+				if(a!=Double.NEGATIVE_INFINITY)
+				partitionsData[ic][i][0].put(aggName, a);
 			}
-			aggregates=AggregateDataUtils.aggregate(map[ic][1], agg);
-			for(int i=0;i<partitions.length;i++)
+			//aggregates=AggregateDataUtils.aggregate(map[ic][1], agg);
+			for(int i=0;i<numPartitions;i++)
 			{
-				partitionsData[ic][i][1].put(aggName, aggregates[i]);
+				double a=AggregateDataUtils.aggregateSafe(map[ic+1][i+1][1],agg);
+				if(a!=Double.NEGATIVE_INFINITY)
+					partitionsData[ic][i][1].put(aggName, a);
 			}
 		}
 		}

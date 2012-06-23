@@ -25,6 +25,6 @@ public class RelationFinderTest {
 		//System.out.println(f.findRelations(new URL("file:///home/dimi/git/saltaku/tileserver/resources/test/shapefiles/is_2/data.shp"), new URL("file:///home/dimi/git/saltaku/tileserver/resources/test/shapefiles/is_1/data.shp")).length);
 		//System.out.println(f.findRelations(new URL("file:///home/dimi/git/saltaku/tileserver/resources/test/shapefiles/msoa/data.shp"), new URL("file:///home/dimi/git/saltaku/tileserver/resources/test/shapefiles/uk_2/data.shp")).length);
 		//System.out.println(f.findRelations(new URL("file:///home/dimi/git/saltaku/tileserver/resources/test/shapefiles/uk_2/data.shp"), new URL("file:///home/dimi/git/saltaku/tileserver/resources/test/shapefiles/uk_1/data.shp")).length);
-		System.out.println(f.findRelations(new URL("file:///home/dimi/git/saltaku/tileserver/resources/test/shapefiles/lsoa/data.shp"), new URL("file:///home/dimi/git/saltaku/tileserver/resources/test/shapefiles/uk_2/data.shp")).length);
+		System.out.println(f.findRelations(new URL("file:///home/dimi/git/saltaku/tileserver/resources/test/shapefiles/lsoa/data.shp"), new URL("file:///home/dimi/git/saltaku/tileserver/resources/test/shapefiles/uk_2/data.shp")).relations.length);
 	}
 }

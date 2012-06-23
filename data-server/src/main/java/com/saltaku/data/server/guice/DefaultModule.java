@@ -8,7 +8,9 @@ import com.google.inject.AbstractModule;
 
 import com.google.inject.util.Modules;
 import com.saltaku.MysqlModule;
+import com.saltaku.api.DataSetAPI;
 import com.saltaku.api.WebAPI;
+import com.saltaku.api.impl.SimpleDataSetApi;
 import com.saltaku.api.impl.SimpleWebAPI;
 import com.saltaku.data.api.servlet.WebAPIServlets;
 import com.saltaku.data.area.AreaModule;
@@ -37,7 +39,7 @@ public class DefaultModule  extends AbstractModule{
 		this.install(mysqlModule);
 		this.install(new AreaModule());
 		bind(WebAPI.class).to(SimpleWebAPI.class);
-		
+		bind(DataSetAPI.class).to(SimpleDataSetApi.class);
 		//bind(DBStore.class).to(MysqlDBStore.class);
 				
 	}

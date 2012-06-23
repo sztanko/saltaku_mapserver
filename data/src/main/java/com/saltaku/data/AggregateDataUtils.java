@@ -14,8 +14,15 @@ public class AggregateDataUtils {
 	public static final Aggregator MAD=new MadGeomAggregator();
 	public static final Aggregator SUM=new SumAggregator();
 	
-	public static Aggregator[] availableAggregators={MIN, MAX, AVG, GEOMAVG, MEDIAN, COUNT, MAD, SUM};
+	public static Aggregator[] availableAggregators={MIN, MAX, AVG, GEOMAVG, MEDIAN, MAD, COUNT, SUM};
 	
+	/**
+	 * If given dataset in and mapping map, returns an array of groups where each groups contain elements which map to the same value.
+	 * Please note it returns maxValue+1 groups.
+	 * @param in
+	 * @param map
+	 * @return
+	 */
 	public static double[][] remap(double[] in, int[] map)
 	{
 		int maxValue=AggregateDataUtils.maxValue(map);
@@ -47,17 +54,14 @@ public class AggregateDataUtils {
 		
 		for(int i=0;i<in1.length;i++)
 		{
-			for(int j=0;j<in1.length;j++)
-			{
 			sizes[map[i][0]][map[i][1]]++;
 		}
-		}
 		
-		for(int i=0;i<in1.length;i++)
+		for(int i=0;i<=maxValue;i++)
 		{
-			for(int j=0;j<in1.length;j++)
+			for(int j=0;j<=maxValue;j++)
 			{
-			out[i][j]=new double[sizes[i][j]][2];
+			out[i][j]=new double[2][sizes[i][j]];
 		}
 		}
 		sizes=new int[maxValue+1][maxValue+1];
@@ -65,8 +69,8 @@ public class AggregateDataUtils {
 		{
 			
 			//out[map[i][0]][map[i][1]][sizes[map[i][0]][map[i][1]]]=new double[2];
-			out[map[i][0]][map[i][1]][0][sizes[map[i][0]][map[i][1]]]=in1[i];
-			out[map[i][0]][map[i][1]][1][sizes[map[i][0]][map[i][1]]]=in2[i];
+			out[map[i][0]] [map[i][1]] [0] [sizes[map[i][0]][map[i][1]]]=in1[i];
+			out[map[i][0]] [map[i][1]] [1] [sizes[map[i][0]][map[i][1]]]=in2[i];
 			sizes[map[i][0]][map[i][1]]++;
 		}
 		
@@ -89,10 +93,23 @@ public class AggregateDataUtils {
 	public static double[] aggregate(double[][] in, Aggregator agg)
 	{
 		double[] out=new double[in.length];
-		for(int i=0;i<in.length;i++) out[i]=agg.aggregate(in[i]);
+		for(int i=0;i<in.length;i++) out[i]=aggregateSafe(in[i],agg);
 		return out;
 	}
 	
+	/**
+	 * Some aggregators don't work very well in case of empty sets. They also can give us some strange non numeric results like negative infinity, etc.
+	 * This method is for handling this edge cases. Never call Aggregator.aggregate directly!
+	 * @param in
+	 * @param agg
+	 * @return
+	 */
+	public static double aggregateSafe(double[] in, Aggregator agg)
+	{
+		double a=agg.aggregate(in);
+		if(!Double.isNaN(a) && a!=Double.POSITIVE_INFINITY) return a;
+		return Double.NEGATIVE_INFINITY;
+	}
 
 	public static class CountAggregator implements Aggregator{
 		public double aggregate(double[] in) {
@@ -105,6 +122,7 @@ public class AggregateDataUtils {
 	
 	public static class MedianAggregator implements Aggregator{
 		public double aggregate(double[] in) {
+			if(in.length==0) return Double.NaN;
 			double[] m=Arrays.copyOf(in, in.length);
 			Arrays.sort(m);
 			if(m.length>1)
@@ -164,7 +182,7 @@ public class AggregateDataUtils {
 	}
 	
 	public String getName() {
-		return "geometric_average_within_median_absolute_deviation_of_geometric_average";
+		return "geom_avg_within_median_ab_dev_of_geom_avg";
 	}
 	
 }
@@ -202,7 +220,7 @@ public class AggregateDataUtils {
 		}
 
 		public String getName() {
-			return "max";
+			return "min";
 		}
 	}
 	
@@ -228,7 +246,7 @@ public class AggregateDataUtils {
 		}
 
 		public String getName() {
-			return "max";
+			return "range";
 		}
 	}
 	

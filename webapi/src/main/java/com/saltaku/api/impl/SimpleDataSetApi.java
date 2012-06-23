@@ -49,20 +49,27 @@ public class SimpleDataSetApi implements DataSetAPI {
 		ds.isPublic=isPublic;
 		ds.separator=Character.toString(separator);
 		ds.startLine=start_line;
+		ds.uploadTime=new Date();
+		ds.uploader=uploaderName;
+		ds.outputAreaId=outputAreaId;
 		store.insertDataSource(ds);
 		d=new double[columns.size()][ar.numItems+1];
+		for(int i=0;i<columns.size();i++) for(int j=0;j<ar.numItems+1;j++) d[i][j]=Double.NEGATIVE_INFINITY;
 		String line[]=null;
+		int size=0;
 		int lineNum=0;
 			while((line=r.readNext())!=null)
 			{
 				if(lineNum++<=start_line) continue;
 				String geoKey=line[geoKeyColumn];
 				int id=store.lookupGeoKey(outputAreaId, geoKey);
+				//System.out.println("Found id "+id+" for key "+geoKey);
 				if(id>=0){
 				int ei=0;
 				for(Entry<String,Integer> e: columns.entrySet())
 				{
-					d[ei++][id]=Double.parseDouble(line[e.getValue()]);	
+					d[ei++][id]=Double.parseDouble(line[e.getValue()]);
+					size++;
 				}
 				}
 			}
@@ -92,13 +99,14 @@ public class SimpleDataSetApi implements DataSetAPI {
 			dataSet.initialAggregation="ID";
 			dataSet.initialAreaId=outputAreaId;
 			dataSet.name=e.getKey();
+			dataSet.size=size;
 			store.insertDataSet(dataSet);
 			
 			DataSetData dd=new DataSetData();
 			dd.aggregation="ID";
 			dd.areaId=outputAreaId;
 			dd.bbox=ar.bbox;
-			dd.data=d[ei++];
+			dd.data=d[ei];
 			dd.dataSet=dataSet.id;
 			
 			store.insertDataSetData(dd);
@@ -116,6 +124,7 @@ public class SimpleDataSetApi implements DataSetAPI {
 					dmap.bbox=ar.bbox;
 					dmap.data=AggregateDataUtils.aggregate(remapping, agg);
 					dmap.dataSet=dataSet.id;
+					System.out.println("Aggregation is "+dmap.aggregation);
 					store.insertDataSetData(dmap);
 				}
 			}
